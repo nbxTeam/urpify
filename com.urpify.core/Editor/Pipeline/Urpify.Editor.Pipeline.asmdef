@@ -1,0 +1,14 @@
+{
+    "name": "Urpify.Editor.Pipeline",
+    "rootNamespace": "Urpify.Pipeline",
+    "references": ["Urpify.Editor.Core", "Urpify.Editor.Scanner", "Urpify.Editor.Verify"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

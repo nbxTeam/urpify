@@ -1,0 +1,256 @@
+/* Urpify window. Colours follow the Unity Editor palette; severity colours are paired with
+   distinct icon shapes, never used alone. Theme class (.urpify-dark / .urpify-light) is set from EditorGUIUtility.isProSkin. */
+
+.urpify-dark {
+    --urpify-bg: #383838;
+    --urpify-panel: #2e2e2e;
+    --urpify-card: #333333;
+    --urpify-border: #232323;
+    --urpify-text: #d2d2d2;
+    --urpify-muted: #a4a4a4;
+    --urpify-pink: #ff7cc3;
+    --urpify-silent: #f5b041;
+    --urpify-degraded: #8fb0ff;
+    --urpify-info: #b4b8c0;
+    --urpify-link: #7cb4ff;
+    --urpify-code-bg: #262626;
+    --urpify-done: #7fd48c;
+    --urpify-failed: #ff8f8f;
+    --urpify-line-added: #26402b;
+    --urpify-line-removed: #4a2a2a;
+    --urpify-line-error: #5c2323;
+    --urpify-tab-bar: #7cb4ff;
+    --urpify-divider: #4a4a4a;
+    --urpify-selected: #2c5d87;
+}
+
+.urpify-light {
+    --urpify-bg: #c8c8c8;
+    --urpify-panel: #d6d6d6;
+    --urpify-card: #e4e4e4;
+    --urpify-border: #999999;
+    --urpify-text: #090909;
+    --urpify-muted: #3d3d3d;
+    --urpify-pink: #8a0d54;
+    --urpify-silent: #6b3e00;
+    --urpify-degraded: #24407a;
+    --urpify-info: #33373e;
+    --urpify-link: #0b4a9e;
+    --urpify-code-bg: #f0f0f0;
+    --urpify-done: #1d6b2a;
+    --urpify-failed: #a11d1d;
+    --urpify-line-added: #cfe8d2;
+    --urpify-line-removed: #f0d0d0;
+    --urpify-line-error: #f3b9b9;
+    --urpify-tab-bar: #0b4a9e;
+    --urpify-divider: #a5a5a5;
+    --urpify-selected: #b4cdee;
+}
+
+.urpify-root { flex-grow: 1; background-color: var(--urpify-bg); color: var(--urpify-text); }
+.urpify-flex { flex-grow: 1; }
+.urpify-toolbar-label { -unity-text-align: middle-left; padding-left: 6px; padding-right: 2px; color: var(--urpify-muted); }
+.urpify-scan-button { -unity-font-style: bold; min-width: 60px; }
+.urpify-progress { flex-direction: row; align-items: center; display: none; }
+.urpify-progress-bar { width: 220px; margin-left: 6px; margin-right: 4px; }
+
+/* The strip (owner's check 19.10.2026, item 4): named groups of counts, a divider between groups, whole groups wrap in a
+   narrow window; a count is a button that filters the list, pressed while its filter is on. */
+.urpify-summary {
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    padding: 3px 8px; min-height: 30px;
+    border-bottom-width: 1px; border-color: var(--urpify-border); background-color: var(--urpify-panel);
+}
+.urpify-strip-groups { flex-direction: row; flex-wrap: wrap; align-items: center; flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.urpify-strip-group { flex-direction: row; align-items: center; flex-shrink: 0; margin: 2px 0; }
+.urpify-strip-label { color: var(--urpify-muted); -unity-font-style: bold; margin-right: 4px; -unity-text-align: middle-left; }
+.urpify-strip-divider { width: 1px; height: 16px; margin: 0 10px 0 8px; background-color: var(--urpify-divider); }
+.urpify-strip-time { margin-left: auto; padding-left: 12px; color: var(--urpify-muted); -unity-text-align: middle-right; }
+.urpify-strip-empty { color: var(--urpify-muted); }
+.urpify-chip {
+    flex-direction: row; align-items: center; min-height: 24px; min-width: 24px; padding: 0 7px; margin: 0 1px;
+    border-width: 1px; border-radius: 12px; border-color: rgba(0,0,0,0); background-color: rgba(0,0,0,0);
+}
+.urpify-chip:hover { background-color: var(--urpify-card); border-color: var(--urpify-divider); }
+.urpify-chip:focus { border-color: var(--urpify-link); }
+.urpify-chip-on, .urpify-chip-on:hover { background-color: var(--urpify-selected); border-color: var(--urpify-link); }
+.urpify-chip .urpify-icon { margin-right: 4px; }
+.urpify-chip-number { -unity-font-style: bold; -unity-text-align: middle-left; }
+
+.urpify-split { flex-grow: 1; }
+.urpify-left { min-width: 220px; background-color: var(--urpify-panel); }
+.urpify-filter-bar { flex-shrink: 0; }
+.urpify-search { flex-grow: 1; min-width: 60px; }
+.urpify-tree { flex-grow: 1; }
+.urpify-empty-list { padding: 12px; color: var(--urpify-muted); white-space: normal; display: none; }
+
+.urpify-row { flex-direction: row; align-items: center; flex-grow: 1; padding-right: 6px; min-height: 22px; }
+/* min-width 0 lets the name shrink below its text width, so the fix column never gets cut. */
+.urpify-row-name { flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -unity-text-align: middle-left; }
+.urpify-row-group { -unity-font-style: bold; }
+.urpify-row-tier { flex-shrink: 0; flex-grow: 0; color: var(--urpify-muted); margin-left: 8px; font-size: 11px; -unity-text-align: middle-right; }
+/* Fixed by the migration: still listed, quieter. */
+.urpify-row-done { color: var(--urpify-muted); }
+.urpify-row .urpify-status-done { display: none; }
+.urpify-row-fixed .urpify-status-done { display: flex; }
+.urpify-row-fixed > .urpify-icon.urpify-sev-pink, .urpify-row-fixed > .urpify-icon.urpify-sev-silent,
+.urpify-row-fixed > .urpify-icon.urpify-sev-degraded, .urpify-row-fixed > .urpify-icon.urpify-sev-info { display: none; }
+
+.urpify-icon { width: 12px; height: 12px; margin-right: 6px; flex-shrink: 0; }
+.urpify-sev-pink { color: var(--urpify-pink); }
+.urpify-sev-silent { color: var(--urpify-silent); }
+.urpify-sev-degraded { color: var(--urpify-degraded); }
+.urpify-sev-info { color: var(--urpify-info); }
+/* Step status (Migrate): shape carries the meaning, colour only supports it. Measured on the card background:
+   done 7.0:1 dark / 5.2:1 light, failed 5.8:1 / 6.1:1, idle 5.1:1 / 8.5:1. */
+.urpify-status-done { color: var(--urpify-done); }
+.urpify-status-failed { color: var(--urpify-failed); }
+.urpify-status-attention { color: var(--urpify-silent); }
+.urpify-status-idle { color: var(--urpify-muted); }
+
+.urpify-right { flex-grow: 1; }
+/* Unity 2022.3 puts the viewport right under the ScrollView, Unity 6 puts it under a content-and-scroller container (the
+   panel had no inner margin there: owner's check 19.10.2026, window shots). Only the panel's own content, not a scroll
+   view inside it. */
+.urpify-right > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container,
+.urpify-right > .unity-scroll-view__content-and-vertical-scroll-container > .unity-scroll-view__content-viewport > .unity-scroll-view__content-container { padding: 14px 16px 24px 16px; }
+
+/* Overview */
+.urpify-lead { flex-direction: row; align-items: center; margin-bottom: 4px; }
+.urpify-lead-number { font-size: 32px; -unity-font-style: bold; margin-right: 10px; }
+.urpify-lead-text { font-size: 15px; white-space: normal; flex-shrink: 1; }
+.urpify-lead .urpify-icon { width: 22px; height: 22px; margin-right: 10px; }
+.urpify-note { color: var(--urpify-muted); white-space: normal; margin-bottom: 12px; }
+.urpify-tiles { flex-direction: row; flex-wrap: wrap; margin-bottom: 14px; }
+.urpify-tile {
+    flex-direction: row; align-items: center; padding: 8px 10px; margin: 0 8px 8px 0; min-width: 150px;
+    border-width: 1px; border-color: var(--urpify-border); border-radius: 4px; background-color: var(--urpify-card);
+}
+.urpify-tile-number { font-size: 18px; -unity-font-style: bold; margin-right: 6px; }
+.urpify-h2 { font-size: 14px; -unity-font-style: bold; margin-top: 10px; margin-bottom: 6px; }
+.urpify-kv { flex-direction: row; margin-bottom: 2px; }
+/* As wide as its words, at least 180 px: a long label (ru, de) ran into its number. */
+.urpify-kv-key { min-width: 180px; margin-right: 12px; flex-shrink: 0; color: var(--urpify-muted); }
+.urpify-scene-row { flex-direction: row; align-items: center; min-height: 22px; }
+.urpify-scene-path { flex-grow: 1; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
+.urpify-empty { align-items: center; justify-content: center; flex-grow: 1; padding: 40px 20px; }
+.urpify-empty-title { font-size: 18px; -unity-font-style: bold; margin-bottom: 8px; -unity-text-align: middle-center; }
+.urpify-empty-text { color: var(--urpify-muted); white-space: normal; -unity-text-align: middle-center; max-width: 420px; margin-bottom: 14px; }
+.urpify-primary { min-height: 24px; padding-left: 14px; padding-right: 14px; -unity-font-style: bold; }
+
+/* Details */
+.urpify-title { font-size: 16px; -unity-font-style: bold; white-space: nowrap; flex-shrink: 1; flex-grow: 1; min-width: 0; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; }
+.urpify-subtitle { color: var(--urpify-muted); white-space: normal; margin-bottom: 8px; }
+.urpify-header { flex-direction: row; align-items: center; margin-bottom: 2px; }
+.urpify-header-tier { flex-shrink: 0; padding: 2px 6px; border-width: 1px; border-radius: 3px; border-color: var(--urpify-border); }
+.urpify-buttons { flex-direction: row; flex-wrap: wrap; margin-bottom: 10px; }
+.urpify-buttons > Button { margin-left: 0; margin-right: 6px; }
+.urpify-output { margin-left: 0; margin-right: 6px; min-width: 240px; }
+.urpify-output > Label { min-width: 48px; }
+.urpify-card {
+    padding: 8px 10px; margin-bottom: 8px; border-width: 1px; border-radius: 4px;
+    border-color: var(--urpify-border); background-color: var(--urpify-card);
+}
+.urpify-card-head { flex-direction: row; align-items: center; margin-bottom: 4px; }
+.urpify-card-title { -unity-font-style: bold; flex-shrink: 1; white-space: normal; }
+.urpify-card-tier { margin-left: auto; color: var(--urpify-muted); flex-shrink: 0; }
+.urpify-text { white-space: normal; margin-bottom: 4px; }
+.urpify-manual { white-space: normal; margin-bottom: 4px; padding-left: 6px; border-left-width: 3px; border-color: var(--urpify-silent); }
+.urpify-code {
+    -unity-font-definition: resource("Fonts/RobotoMono/RobotoMono-Regular");
+    white-space: normal; padding: 4px 6px; margin: 2px 0 4px 0; background-color: var(--urpify-code-bg); border-radius: 3px; font-size: 11px;
+}
+.urpify-link { color: var(--urpify-link); border-width: 0; background-color: rgba(0,0,0,0); padding: 0; margin: 0 8px 0 0; -unity-text-align: middle-left; }
+.urpify-link:hover { -unity-font-style: bold; }
+.urpify-link:focus { border-width: 1px; border-color: var(--urpify-link); }
+.urpify-rule { color: var(--urpify-muted); font-size: 10px; }
+/* A step's result in plain words, then its technical lines folded under Details (design review 13.10.2026, item 8). */
+.urpify-result { white-space: normal; margin-bottom: 2px; }
+.urpify-step-details { margin-left: 0; margin-bottom: 4px; }
+.urpify-step-details .urpify-rule { white-space: normal; }
+.urpify-used { flex-direction: row; flex-wrap: wrap; }
+
+/* Before/after comparison */
+.urpify-compare { margin-bottom: 14px; }
+.urpify-compare-frame { position: relative; width: 100%; max-width: 960px; overflow: hidden; background-color: var(--urpify-code-bg); }
+.urpify-compare-image { position: absolute; left: 0; top: 0; bottom: 0; }
+.urpify-compare-frame > .urpify-compare-image { right: 0; }
+.urpify-compare-curtain { position: absolute; left: 0; top: 0; bottom: 0; overflow: hidden; border-right-width: 2px; border-color: #ffffff; }
+.urpify-compare-controls { flex-direction: row; align-items: center; max-width: 960px; margin-top: 4px; }
+.urpify-compare-slider { flex-grow: 1; margin-right: 12px; }
+
+/* Shader panel */
+.urpify-tabs { flex-direction: row; flex-wrap: wrap; margin-top: 8px; margin-bottom: 8px; border-bottom-width: 1px; border-color: var(--urpify-border); }
+.urpify-tab { margin: 0 4px -1px 0; padding: 4px 12px; min-height: 24px; border-width: 0 0 3px 0; border-radius: 0; border-color: rgba(0,0,0,0); background-color: rgba(0,0,0,0); }
+.urpify-tab:hover { background-color: var(--urpify-card); }
+.urpify-tab:focus { border-color: var(--urpify-link); }
+.urpify-tab-on { -unity-font-style: bold; border-color: var(--urpify-tab-bar); }
+.urpify-code-columns { flex-direction: row; flex-wrap: wrap; }
+.urpify-code-column { flex-grow: 1; flex-basis: 280px; min-width: 0; margin-right: 8px; margin-bottom: 8px; }
+.urpify-code-scroll { height: 420px; background-color: var(--urpify-code-bg); border-width: 1px; border-color: var(--urpify-border); border-radius: 3px; }
+.urpify-codeline {
+    -unity-font-definition: resource("Fonts/RobotoMono/RobotoMono-Regular");
+    font-size: 11px; white-space: nowrap; padding: 0 6px; margin: 0; min-height: 15px;
+}
+.urpify-codeline-added { background-color: var(--urpify-line-added); }
+.urpify-codeline-removed { background-color: var(--urpify-line-removed); }
+.urpify-codeline-error { background-color: var(--urpify-line-error); -unity-font-style: bold; }
+.urpify-code-editor { min-height: 320px; margin-bottom: 8px; }
+.urpify-code-editor TextInput, .urpify-code-editor .unity-text-field__input {
+    -unity-font-definition: resource("Fonts/RobotoMono/RobotoMono-Regular"); font-size: 11px; -unity-text-align: upper-left;
+}
+.urpify-preview-controls { max-width: 520px; margin-bottom: 8px; }
+.urpify-preview-image { width: 512px; max-width: 100%; height: 512px; margin-bottom: 8px; }
+.urpify-preview .urpify-compare-frame, .urpify-preview .urpify-compare-controls { max-width: 512px; }
+.urpify-preview .urpify-rule { max-width: 512px; white-space: normal; }
+.urpify-properties { max-width: 520px; }
+/* Free / Pro (TZ M8 item 4): what only Pro fixes carries the Editor's lock icon and the word Pro. */
+.urpify-row-pro, .urpify-pro-badge { flex-direction: row; align-items: center; flex-shrink: 0; margin-left: 8px; }
+.urpify-row-pro Image, .urpify-pro-badge Image { width: 12px; height: 12px; margin-right: 2px; }
+.urpify-row-pro Label, .urpify-pro-badge Label { font-size: 11px; color: var(--urpify-muted); -unity-font-style: bold; }
+.urpify-pro-row { flex-direction: row; align-items: center; flex-wrap: wrap; margin-bottom: 4px; }
+.urpify-code-locked { opacity: 0.85; }
+/* License the shader names: a small tag next to the fix tier, the meaning in its tooltip. */
+.urpify-license-tag { flex-shrink: 0; padding: 1px 5px; margin-right: 6px; font-size: 11px; border-width: 1px; border-radius: 3px; border-color: var(--urpify-border); color: var(--urpify-muted); }
+.urpify-license-nc { border-color: var(--urpify-silent); color: var(--urpify-silent); }
+.urpify-big-button { height: 28px; font-size: 13px; padding: 0 14px; margin: 6px 0; }
+
+/* Migrate: a step that cannot run yet says why under its description (owner's check 19.10.2026, item 2). */
+.urpify-step-blocked { white-space: normal; margin: 2px 0 6px 0; padding-left: 6px; border-left-width: 2px; border-color: var(--urpify-divider); color: var(--urpify-muted); }
+/* Show what breaks: the first thing to do, set apart from the steps. */
+.urpify-breaks-card { border-color: var(--urpify-link); margin-bottom: 12px; }
+
+/* The result after the migration (owner's check 19.10.2026, item 14): the result large, then the scene, then what needs the
+   user, the fixed ones folded away, an end line. The title is 2.5 times the body text. */
+.urpify-result-page { max-width: 960px; }
+.urpify-result-head { flex-direction: row; align-items: center; margin-bottom: 2px; }
+.urpify-result-icon { width: 26px; height: 26px; margin-right: 12px; flex-shrink: 0; }
+.urpify-result-title { font-size: 30px; -unity-font-style: bold; white-space: normal; flex-shrink: 1; }
+.urpify-result-sub { font-size: 13px; color: var(--urpify-muted); white-space: normal; margin: 2px 0 14px 0; }
+.urpify-result-scene { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.urpify-result-scene .urpify-h2 { margin-right: 10px; }
+.urpify-result-verdict { color: var(--urpify-muted); white-space: normal; flex-shrink: 1; }
+.urpify-result-card { flex-direction: row; align-items: center; }
+.urpify-result-card-body { flex-grow: 1; flex-shrink: 1; min-width: 0; }
+.urpify-result-card-button { flex-shrink: 0; margin-left: 10px; min-height: 24px; min-width: 64px; }
+.urpify-result-fixed { margin-top: 12px; }
+.urpify-result-fixed .urpify-scene-row { min-height: 24px; }
+.urpify-result-foot { flex-direction: row; flex-wrap: wrap; margin-top: 20px; padding-top: 10px; border-top-width: 1px; border-color: var(--urpify-divider); }
+.urpify-result-foot .urpify-link { margin-right: 16px; min-height: 24px; }
+
+/* Compare scenes (owner's check 19.10.2026, item 9). */
+.urpify-compare-head { margin-bottom: 4px; }
+.urpify-scene-card-head { flex-direction: row; align-items: center; }
+.urpify-scene-toggle {
+    flex-grow: 1; flex-shrink: 1; min-width: 0; flex-direction: row; align-items: center;
+    margin: 0; padding: 2px; border-width: 0; border-radius: 3px; background-color: rgba(0,0,0,0);
+}
+.urpify-scene-toggle:hover { background-color: var(--urpify-panel); }
+.urpify-scene-toggle:focus { border-width: 1px; border-color: var(--urpify-link); }
+.urpify-scene-thumb { width: 128px; height: 72px; margin-right: 10px; flex-shrink: 0; background-color: var(--urpify-code-bg); }
+.urpify-scene-words { flex-grow: 1; flex-shrink: 1; min-width: 0; align-items: flex-start; }
+/* The card's head is a button (it opens the comparison): its texts read from the left, not centred like a button's. */
+.urpify-scene-toggle Label { -unity-text-align: middle-left; white-space: normal; }
+.urpify-scene-words .urpify-note { margin-bottom: 0; }
+.urpify-scene-open { flex-shrink: 0; margin-left: 8px; min-height: 24px; }
+.urpify-scene-card-body { margin-top: 6px; }

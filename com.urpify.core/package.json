@@ -1,0 +1,27 @@
+{
+  "name": "com.urpify.core",
+  "displayName": "Urpify",
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "description": "Finds everything that breaks when a project moves from the Built-in Render Pipeline to URP, including silent breakage, and reports it before anything is changed.",
+  "keywords": [
+    "urp",
+    "migration",
+    "shader",
+    "built-in",
+    "render pipeline"
+  ],
+  "author": {
+    "name": "nbxTeam",
+    "email": "nbxteamsup@gmail.com",
+    "url": "https://github.com/nbxTeam"
+  },
+  "documentationUrl": "https://nbxteam.github.io/urpify/",
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "A Built-in scene with one booth per construct that breaks in URP: scan it, migrate it and compare it in a minute.",
+      "path": "Samples~/Demo"
+    }
+  ]
+}

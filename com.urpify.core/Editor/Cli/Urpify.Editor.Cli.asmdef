@@ -1,0 +1,14 @@
+{
+    "name": "Urpify.Editor.Cli",
+    "rootNamespace": "Urpify.Cli",
+    "references": ["Urpify.Editor.Core","Urpify.Editor.Scanner","Urpify.Editor.Verify","Urpify.Editor.Pipeline"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

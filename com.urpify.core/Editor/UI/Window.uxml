@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="root" class="urpify-root">
+        <uie:Toolbar name="toolbar" class="urpify-toolbar">
+            <ui:Label name="scope-label" class="urpify-toolbar-label" />
+            <uie:ToolbarMenu name="scope-menu" class="urpify-scope-menu" />
+            <uie:ToolbarButton name="scan-button" class="urpify-scan-button" />
+            <uie:ToolbarButton name="migrate-button" />
+            <uie:ToolbarButton name="compare-button" />
+            <ui:VisualElement name="progress" class="urpify-progress">
+                <ui:ProgressBar name="progress-bar" class="urpify-progress-bar" />
+                <uie:ToolbarButton name="cancel-button" />
+            </ui:VisualElement>
+            <uie:ToolbarSpacer class="urpify-flex" />
+            <uie:ToolbarMenu name="report-menu" />
+            <uie:ToolbarButton name="settings-button" />
+        </uie:Toolbar>
+        <ui:VisualElement name="summary" class="urpify-summary" />
+        <ui:TwoPaneSplitView name="split" fixed-pane-initial-dimension="320" class="urpify-split">
+            <ui:VisualElement name="left" class="urpify-left">
+                <uie:Toolbar class="urpify-filter-bar">
+                    <uie:ToolbarSearchField name="search" class="urpify-search" />
+                </uie:Toolbar>
+                <uie:Toolbar class="urpify-filter-bar">
+                    <uie:ToolbarMenu name="issue-filter" />
+                    <uie:ToolbarMenu name="fix-filter" />
+                    <uie:ToolbarMenu name="type-filter" />
+                </uie:Toolbar>
+                <ui:TreeView name="tree" class="urpify-tree" />
+                <ui:Label name="empty-list" class="urpify-empty-list" />
+            </ui:VisualElement>
+            <ui:ScrollView name="right" class="urpify-right" />
+        </ui:TwoPaneSplitView>
+    </ui:VisualElement>
+</ui:UXML>
