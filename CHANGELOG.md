@@ -5,7 +5,7 @@ and versions follow [Semantic Versioning](https://semver.org/): a patch release 
 converters, catalog entries or languages without breaking anything, a major release may change the report schema, the
 command line or the project files Urpify writes.
 
-## [1.0.0] - TBD (release date)
+## [1.0.0] - 2026-10-18
 
 First release.
 
