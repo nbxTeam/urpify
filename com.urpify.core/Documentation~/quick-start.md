@@ -4,10 +4,14 @@ The whole cycle in 5 minutes: scan, migrate, compare. Try it on the demo scene f
 
 ## 1. Install
 
-Install Urpify, and Urpify Pro if you have it, into a project that still uses the Built-in Render Pipeline:
+Install into a project that still uses the Built-in Render Pipeline:
 
-- **Package Manager:** `+` > Add package from disk, choose `package.json` of `com.urpify.core`, then of `com.urpify.pro`.
-- **`.unitypackage`:** Assets > Import Package > Custom Package, import Urpify, then Urpify Pro.
+- **Urpify Pro:** one file, `Urpify-Pro-1.0.0.unitypackage` (from the Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, import everything: Urpify, Urpify Pro, the demo and this documentation
+  are all in it. Free Urpify already installed from a `.unitypackage`: import Pro over it, nothing to remove. Installed
+  with the Package Manager: remove it there first (Package Manager > Urpify > Remove), since Urpify Pro contains it.
+- **Urpify (free):** `Urpify-1.0.0.unitypackage` from [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+  imported the same way, or Package Manager > `+` > Add package from git URL:
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
 
 Commit your project to version control before you migrate. Urpify backs up every file it changes, but a commit is the
 safest restore point.

@@ -4,11 +4,14 @@
 
 ## 1. 安装
 
-在仍使用 Built-in Render Pipeline 的项目中安装 Urpify，如果你有 Urpify Pro，也一并安装：
+在仍使用 Built-in Render Pipeline 的项目中安装：
 
-- **Package Manager：** `+` > Add package from disk，先选择 `com.urpify.core` 的 `package.json`，再选择
-  `com.urpify.pro` 的。
-- **`.unitypackage`：** Assets > Import Package > Custom Package，先导入 Urpify，再导入 Urpify Pro。
+- **Urpify Pro：** 只有一个文件 `Urpify-Pro-1.0.0.unitypackage`（来自 Asset Store：Package Manager > My Assets > Import）。Assets > Import Package > Custom Package，全部导入：Urpify、Urpify Pro、演示和这份文档都在里面。
+  已经从 `.unitypackage` 安装了免费版 Urpify：直接在上面导入 Pro，不用删除任何东西。用 Package Manager 安装的：先在那里
+  移除它（Package Manager > Urpify > Remove），因为 Urpify Pro 已经包含它。
+- **Urpify（免费版）：** 从 [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest) 下载
+  `Urpify-1.0.0.unitypackage`，用同样的方式导入；或者 Package Manager > `+` > Add package from git URL：
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`。
 
 迁移前请把项目提交到版本控制。Urpify 会备份它改动的每个文件，但提交才是最安全的恢复点。
 

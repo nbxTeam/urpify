@@ -5,11 +5,15 @@
 
 ## 1. 설치
 
-아직 Built-in Render Pipeline을 쓰는 프로젝트에 Urpify를 설치하고, Urpify Pro가 있다면 함께 설치합니다.
+아직 Built-in Render Pipeline을 쓰는 프로젝트에 설치합니다.
 
-- **Package Manager:** `+` > Add package from disk에서 `com.urpify.core`의 `package.json`을, 이어서 `com.urpify.pro`의
-  것을 선택합니다.
-- **`.unitypackage`:** Assets > Import Package > Custom Package에서 Urpify를, 이어서 Urpify Pro를 가져옵니다.
+- **Urpify Pro:** 파일은 `Urpify-Pro-1.0.0.unitypackage` 하나입니다(Asset Store에서: Package Manager > My Assets > Import). Assets > Import Package > Custom Package에서 전부 가져옵니다. Urpify, Urpify Pro, 데모, 이
+  문서가 모두 들어 있습니다. 무료 Urpify를 `.unitypackage`로 이미 설치했다면 그 위에 Pro를 가져오면 되고, 지울 것은
+  없습니다. Package Manager로 설치했다면 먼저 거기서 제거하세요(Package Manager > Urpify > Remove). Urpify Pro에 이미
+  들어 있기 때문입니다.
+- **Urpify(무료):** [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest)의
+  `Urpify-1.0.0.unitypackage`를 같은 방법으로 가져오거나, Package Manager > `+` > Add package from git URL에
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`을 입력합니다.
 
 마이그레이션하기 전에 프로젝트를 버전 관리에 커밋하세요. Urpify는 바꾸는 모든 파일을 백업하지만, 가장 안전한 복원 지점은
 커밋입니다.

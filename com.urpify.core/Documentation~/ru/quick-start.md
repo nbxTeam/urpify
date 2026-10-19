@@ -5,11 +5,14 @@
 
 ## 1. Установка
 
-Установите Urpify и, если он у вас есть, Urpify Pro в проект, который ещё на встроенном конвейере:
+Установите в проект, который ещё на встроенном конвейере:
 
-- **Package Manager:** `+` > Add package from disk, выберите `package.json` пакета `com.urpify.core`, затем
-  `com.urpify.pro`.
-- **`.unitypackage`:** Assets > Import Package > Custom Package, импортируйте Urpify, затем Urpify Pro.
+- **Urpify Pro:** один файл, `Urpify-Pro-1.0.0.unitypackage` (из Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, импортируйте всё: в файле Urpify, Urpify Pro, демо и эта документация.
+  Бесплатный Urpify уже установлен из `.unitypackage` — импортируйте Pro поверх, удалять ничего не нужно. Установлен через
+  Package Manager — сначала удалите его там (Package Manager > Urpify > Remove): Urpify Pro уже содержит его.
+- **Urpify (бесплатный):** `Urpify-1.0.0.unitypackage` из [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+  импорт так же, или Package Manager > `+` > Add package from git URL:
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
 
 Перед миграцией закоммитьте проект в систему контроля версий. Urpify делает бэкап каждого изменяемого файла, но коммит —
 самая надёжная точка восстановления.

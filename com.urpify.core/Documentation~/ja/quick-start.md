@@ -5,11 +5,16 @@
 
 ## 1. インストール
 
-まだ Built-in Render Pipeline を使っているプロジェクトに、Urpify と、お持ちであれば Urpify Pro をインストールします。
+まだ Built-in Render Pipeline を使っているプロジェクトにインストールします。
 
-- **Package Manager：** `+` > Add package from disk で `com.urpify.core` の `package.json`、続いて `com.urpify.pro` の
-  ものを選びます。
-- **`.unitypackage`：** Assets > Import Package > Custom Package で Urpify、続いて Urpify Pro をインポートします。
+- **Urpify Pro：** ファイルは `Urpify-Pro-1.0.0.unitypackage` の 1 つだけです（Asset Store から：Package Manager >
+  My Assets > Import）。Assets > Import Package > Custom Package ですべてをインポートします。Urpify、
+  Urpify Pro、デモ、このドキュメントがすべて入っています。無料版の Urpify を `.unitypackage` からインストール済みの場合は、
+  その上に Pro をインポートするだけで、削除するものはありません。Package Manager でインストールした場合は、先にそこで
+  削除してください（Package Manager > Urpify > Remove）。Urpify Pro に含まれているためです。
+- **Urpify（無料版）：** [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest) の
+  `Urpify-1.0.0.unitypackage` を同じ方法でインポートするか、Package Manager > `+` > Add package from git URL で
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0` を追加します。
 
 移行の前にプロジェクトをバージョン管理にコミットしてください。Urpify は変更するファイルをすべてバックアップしますが、
 最も安全な復元ポイントはコミットです。

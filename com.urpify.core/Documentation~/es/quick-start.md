@@ -5,11 +5,15 @@ una copia de tu proyecto.
 
 ## 1. Instalar
 
-Instala Urpify, y Urpify Pro si lo tienes, en un proyecto que todavía use la Built-in Render Pipeline:
+Instala en un proyecto que todavía use la Built-in Render Pipeline:
 
-- **Package Manager:** `+` > Add package from disk, elige el `package.json` de `com.urpify.core` y luego el de
-  `com.urpify.pro`.
-- **`.unitypackage`:** Assets > Import Package > Custom Package, importa Urpify y luego Urpify Pro.
+- **Urpify Pro:** un solo archivo, `Urpify-Pro-1.0.0.unitypackage` (desde la Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, importa todo: contiene Urpify, Urpify Pro, la
+  demostración y esta documentación. ¿Ya tienes Urpify gratuito instalado desde un `.unitypackage`? Importa Pro encima, no
+  hay que quitar nada. ¿Instalado con el Package Manager? Quítalo allí primero (Package Manager > Urpify > Remove), porque
+  Urpify Pro ya lo contiene.
+- **Urpify (gratuito):** `Urpify-1.0.0.unitypackage` de [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+  importado de la misma forma, o Package Manager > `+` > Add package from git URL:
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
 
 Haz commit de tu proyecto en el control de versiones antes de migrar. Urpify guarda una copia de cada archivo que cambia,
 pero un commit es el punto de restauración más seguro.
