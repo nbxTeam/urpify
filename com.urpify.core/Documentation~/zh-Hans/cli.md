@@ -76,6 +76,8 @@ Capture 在 Play Mode 中运行每个场景，并把主相机和每个 Migration
 Backup 在 Capture before 之前运行，没有备份时 Capture before 会拒绝运行：运行场景时 Unity 会重新保存旧资源，包也会创建
 文件，而备份必须保留项目原来的样子。
 
+Asset Store 版本不安装任何包：请在 `install-urp` 之前在 Package Manager 中安装 URP，该步骤只做检查。需要在 Unity 转换器自己的窗口中转换的项目（使用了 Post-processing v2、Unity 6000.3）请在 Urpify 窗口中运行 `unity-converter`。
+
 会改动文件的步骤在 git 工作区有未提交改动时会在日志中警告。
 
 ### Rollback

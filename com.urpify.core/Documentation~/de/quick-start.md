@@ -7,20 +7,29 @@ einer Kopie deines Projekts.
 
 Installiere in ein Projekt, das noch die Built-in Render Pipeline nutzt:
 
-- **Urpify Pro:** eine Datei, `Urpify-Pro-1.0.0.unitypackage` (aus dem Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, importiere alles: Urpify, Urpify Pro, die Demo und diese
+- **Urpify Pro:** eine Datei, `Urpify-Pro-1.0.1.unitypackage` (aus dem Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, importiere alles: Urpify, Urpify Pro, die Demo und diese
   Dokumentation sind darin. Das kostenlose Urpify ist schon aus einem `.unitypackage` installiert: importiere Pro darüber,
   entfernen musst du nichts. Mit dem Package Manager installiert: entferne es dort zuerst (Package Manager > Urpify >
   Remove), denn Urpify Pro enthält es.
-- **Urpify (kostenlos):** `Urpify-1.0.0.unitypackage` aus den [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+- **Urpify (kostenlos):** `Urpify-1.0.1.unitypackage` aus den [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
   genauso importiert, oder Package Manager > `+` > Add package from git URL:
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1`.
 
 Committe dein Projekt in die Versionsverwaltung, bevor du migrierst. Urpify sichert jede Datei, die es ändert, aber
 ein Commit ist der sicherste Wiederherstellungspunkt.
 
+**Die Asset-Store-Version** folgt der Regel des Asset Stores, dass ein Paket keine anderen Pakete hinzufügt oder entfernt,
+daher funktionieren dort zwei Dinge anders. **Install URP** öffnet den Package Manager bei Universal RP: Klicken Sie auf
+**Install**, und der Schritt geht von selbst weiter, sobald URP geladen ist. Ein Zurücksetzen stellt alles andere wieder
+her, lässt aber `Packages/manifest.json` und `packages-lock.json` unverändert: URP bleibt installiert und ungenutzt, und
+die Meldung zum Zurücksetzen hat eine Schaltfläche, die den Package Manager zum Entfernen öffnet. Solange URP installiert ist, legt Unity beim Öffnen des Projekts die eigenen Einstellungsdateien von URP an (globale URP-Einstellungen, Shader-Graph-Einstellungen, ein Eintrag in den Graphics-Einstellungen); das Projekt rendert weiter mit Built-in. Das Fenster ist auf
+Englisch, bis Sie in den Einstellungen von Urpify eine Sprache wählen. Bei manchen Projekten (Post-processing v2 in
+Gebrauch, Unity 6000.3) läuft Unitys Konverter in seinem eigenen Fenster: Konvertieren Sie dort und wählen Sie dann beim
+Schritt **Weiter**.
+
 ## 2. Demo öffnen (optional)
 
-Help > Urpify > **Import Demo** oder **Demo importieren** im leeren Urpify-Fenster. Die Demo kommt nach `Assets/Samples/Urpify/1.0.0/Demo`,
+Help > Urpify > **Import Demo** oder **Demo importieren** im leeren Urpify-Fenster. Die Demo kommt nach `Assets/Samples/Urpify/1.0.1/Demo`,
 und ihre Szene öffnet sich. Mit dem Package Manager installiert, macht Package Manager > Urpify > Samples > **Demo** > Import dasselbe. Die Szene hat
 einen Stand pro Konstrukt, das in URP kaputtgeht: Surface-Shader, ein beleuchteter Vert/Frag-Shader, Glas mit GrabPass,
 Wasser, das die Tiefe liest, ein Projektor, ein Spiegel, den ein Skript rendert, ein im Code erzeugtes Material und Glas im

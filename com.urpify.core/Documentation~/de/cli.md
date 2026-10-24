@@ -79,6 +79,8 @@ läuft jeder Schritt in einem eigenen Prozess. Backup läuft vor Capture before,
 ohne Sicherung: Beim Abspielen von Szenen speichert Unity alte Assets neu und Pakete legen Dateien an, und die Sicherung
 muss das Projekt so festhalten, wie es war.
 
+Die Asset-Store-Version installiert kein Paket: Installieren Sie URP vor `install-urp` im Package Manager, der Schritt prüft es dann nur. Ein Projekt, dessen Unity-Konverter sein Fenster braucht (Post-processing v2 in Gebrauch, Unity 6000.3), startet `unity-converter` im Urpify-Fenster.
+
 Schritte, die Dateien ändern, warnen im Log, wenn das Git-Arbeitsverzeichnis nicht committete Änderungen hat.
 
 ### Rollback

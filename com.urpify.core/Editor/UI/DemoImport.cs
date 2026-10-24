@@ -56,7 +56,11 @@ namespace Urpify.UI
                 File.WriteAllText(PendingFile, Application.isBatchMode ? "quit" : "open");
                 AssetDatabase.importPackageCancelled -= OnCancelled;
                 AssetDatabase.importPackageCancelled += OnCancelled;
+#if UNITY_6000_6_OR_NEWER
+                UnityEditor.AssetPackage.Package.Import(nested, !Application.isBatchMode);
+#else
                 AssetDatabase.ImportPackage(nested, !Application.isBatchMode);
+#endif
                 Watch();
                 return;
             }

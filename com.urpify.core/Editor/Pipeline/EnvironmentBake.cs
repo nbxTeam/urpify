@@ -63,7 +63,10 @@ namespace Urpify.Pipeline
                 settings.realtimeGI = false;
                 // A script cannot bake while Auto Generate is on ("not available in iterative mode", 2022.3.62f3 with
                 // Portals' settings, M9a); the baked data replaces what Auto Generate gave the Editor.
+                // Obsolete in Unity 6.6 without a replacement; a bake from a script still refuses to start while it is on.
+#pragma warning disable 618
                 settings.autoGenerate = false;
+#pragma warning restore 618
                 Lightmapping.lightingSettings = settings;
                 if (!Lightmapping.Bake()) error = Loc.Get("ui.bake.failed");
                 else

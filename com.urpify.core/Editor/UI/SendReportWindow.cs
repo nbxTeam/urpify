@@ -138,7 +138,7 @@ namespace Urpify.UI
             Prop("shader", shaderPath);
             Prop("unity", Application.unityVersion);
             Prop("urp", urp);
-            Prop("kit", Scanner.ProjectScanner.KitVersion + (Edition.ProInstalled ? " Pro" : " Free"));
+            Prop("kit", Scanner.ProjectScanner.KitVersion + (Edition.ProInstalled ? " Pro" : " Free") + (BuildInfo.AssetStore ? " (Asset Store)" : ""));
             Prop("comment", comment?.value ?? "");
             Prop("contact", contact?.value ?? "");
             Prop("findings", string.Join("\n", findings));

@@ -17,8 +17,9 @@ namespace Urpify.UI
 
         readonly bool ownsTextures;
 
-        public CompareView(string beforePath, string afterPath, string diffPath)
-            : this(Load(beforePath), Load(afterPath), Load(diffPath), true, null) { }
+        /// <param name="split">Where the curtain starts: the share of the width that shows the frame before (0 = all after).</param>
+        public CompareView(string beforePath, string afterPath, string diffPath, float split = 0.5f)
+            : this(Load(beforePath), Load(afterPath), Load(diffPath), true, null) { this.split = split; sliderStart?.SetValueWithoutNotify(split); }
 
         /// <summary>Compares textures the caller owns (live previews); they are not released with the view.</summary>
         public CompareView(Texture2D before, Texture2D after, Texture2D diff, string legend = null) : this(before, after, diff, false, legend) { }
@@ -55,7 +56,7 @@ namespace Urpify.UI
             controls.AddToClassList("urpify-compare-controls");
             // Which side is which: in the tooltip of the image, not as a line under every comparison.
             frame.tooltip = legend ?? Loc.Get("ui.compare.labels");
-            var slider = new Slider(Loc.Get("ui.compare.curtain"), 0, 1) { value = split };
+            var slider = sliderStart = new Slider(Loc.Get("ui.compare.curtain"), 0, 1) { value = split };
             slider.AddToClassList("urpify-compare-slider");
             slider.RegisterValueChangedCallback(e => { split = e.newValue; Layout(); });
             var toggle = new Toggle(Loc.Get("ui.compare.diff")) { value = false };
@@ -74,6 +75,7 @@ namespace Urpify.UI
         }
 
         float aspect;
+        readonly Slider sliderStart;
 
         void Layout()
         {

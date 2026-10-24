@@ -42,8 +42,12 @@ namespace Urpify.Pipeline
                     back[Path.GetFullPath(path)] = kv.Key;
                 }
                 // Engine modules, not the UnityEngine.dll facade: URP's assemblies name UnityEngine.CoreModule types.
+                // AssemblyBuilder is marked obsolete in Unity 6.6 with no replacement in the Editor API ("use the Roslyn
+                // compiler"); it is still the one way to compile files against the project's assemblies.
+#pragma warning disable 618
                 var builder = new AssemblyBuilder(Path.Combine(dir, "UrpifyCheck.dll"), files.ToArray())
                     { flags = AssemblyBuilderFlags.None, referencesOptions = ReferencesOptions.UseEngineModules };
+#pragma warning restore 618
                 if (defines != null && defines.Length > 0) builder.additionalDefines = defines;
                 CompilerMessage[] messages = null;
                 builder.buildFinished += (_, m) => messages = m;

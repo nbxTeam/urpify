@@ -1,7 +1,7 @@
 {
   "name": "com.urpify.core",
   "displayName": "Urpify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2022.3",
   "description": "Finds everything that breaks when a project moves from the Built-in Render Pipeline to URP, including silent breakage, and reports it before anything is changed.",
   "keywords": [

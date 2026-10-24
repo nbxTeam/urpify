@@ -6,18 +6,24 @@
 
 在仍使用 Built-in Render Pipeline 的项目中安装：
 
-- **Urpify Pro：** 只有一个文件 `Urpify-Pro-1.0.0.unitypackage`（来自 Asset Store：Package Manager > My Assets > Import）。Assets > Import Package > Custom Package，全部导入：Urpify、Urpify Pro、演示和这份文档都在里面。
+- **Urpify Pro：** 只有一个文件 `Urpify-Pro-1.0.1.unitypackage`（来自 Asset Store：Package Manager > My Assets > Import）。Assets > Import Package > Custom Package，全部导入：Urpify、Urpify Pro、演示和这份文档都在里面。
   已经从 `.unitypackage` 安装了免费版 Urpify：直接在上面导入 Pro，不用删除任何东西。用 Package Manager 安装的：先在那里
   移除它（Package Manager > Urpify > Remove），因为 Urpify Pro 已经包含它。
 - **Urpify（免费版）：** 从 [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest) 下载
-  `Urpify-1.0.0.unitypackage`，用同样的方式导入；或者 Package Manager > `+` > Add package from git URL：
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`。
+  `Urpify-1.0.1.unitypackage`，用同样的方式导入；或者 Package Manager > `+` > Add package from git URL：
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1`。
 
 迁移前请把项目提交到版本控制。Urpify 会备份它改动的每个文件，但提交才是最安全的恢复点。
 
+**Asset Store 版本**遵循商店的规则：包不会添加或移除其他包，因此有两点不同。**Install URP** 会在 Package Manager
+中打开 Universal RP：点击 **Install**，URP 加载后该步骤会自动继续。回滚会恢复其他所有内容，但保留 `Packages/manifest.json`
+和 `packages-lock.json` 不变：URP 仍然安装但不被使用，回滚的提示中有一个按钮可打开 Package Manager 将其移除。只要 URP 还安装着，Unity 在打开项目时会添加 URP 自己的设置文件（URP 全局设置、Shader Graph 设置、Graphics 设置中的一行）；项目仍使用 Built-in 渲染。在
+Urpify 设置中选择语言之前，窗口为英文。在某些项目中（使用了 Post-processing v2、Unity 6000.3），Unity 转换器在自己的
+窗口中运行：请在那里转换，然后在该步骤上选择 **继续**。
+
 ## 2. 打开演示（可选）
 
-选择 Help > Urpify > **Import Demo**，或在空的 Urpify 窗口中点击 **导入演示**。演示会导入到 `Assets/Samples/Urpify/1.0.0/Demo`，并打开它的场景。
+选择 Help > Urpify > **Import Demo**，或在空的 Urpify 窗口中点击 **导入演示**。演示会导入到 `Assets/Samples/Urpify/1.0.1/Demo`，并打开它的场景。
 用 Package Manager 安装时，Package Manager > Urpify > Samples > **Demo** > Import 也能做到同样的事。场景里为每种在 URP 中会
 损坏的结构都设置了一个展台：表面着色器、带光照的 vert/frag 着色器、GrabPass 玻璃、读取深度的水、投影器、由脚本渲染的
 镜子、在代码中创建的材质，以及 Standard Transparent 模式的玻璃。每个展台都有一个 Migration Viewpoint，因此对比时可以

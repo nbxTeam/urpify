@@ -16,6 +16,8 @@ namespace Urpify.UI
             public AssetSummary Asset;   // null for group rows
             public int Count;
             public Severity Severity;
+            /// <summary>Group row after the migration: every asset in it is fixed, so it shows a tick.</summary>
+            public bool AllFixed;
         }
 
         readonly IWindowContext ctx;
@@ -64,13 +66,8 @@ namespace Urpify.UI
             tree.selectionType = SelectionType.Single;
             tree.makeItem = MakeRow;
             tree.bindItem = BindRow;
-#if UNITY_2023_1_OR_NEWER
             tree.selectionChanged += OnSelection;
             tree.itemsChosen += OnChosen;
-#else
-            tree.onSelectionChange += OnSelection;
-            tree.onItemsChosen += OnChosen;
-#endif
         }
 
         void BuildFilterMenu<T>(ToolbarMenu menu, string label, T[] values, Func<T, string> name, HashSet<T> set)
@@ -122,7 +119,11 @@ namespace Urpify.UI
                 {
                     var children = g.OrderByDescending(a => Shown(report, a)).ThenBy(a => Path.GetFileName(a.Path), StringComparer.OrdinalIgnoreCase)
                         .Select(a => new TreeViewItemData<Node>(id++, new Node { Kind = g.Key, Asset = a, Severity = Shown(report, a) })).ToList();
-                    items.Add(new TreeViewItemData<Node>(id++, new Node { Kind = g.Key, Count = children.Count, Severity = g.Max(a => Shown(report, a)) }, children));
+                    // After the migration the group's icon is that of what is left in it, a tick when nothing is (1.0.1).
+                    var left = g.Where(a => !Fixed(a)).ToList();
+                    bool allFixed = left.Count == 0 && g.Any(Fixed);
+                    var severity = allFixed ? Severity.Info : (left.Count > 0 ? left : g.ToList()).Max(a => Shown(report, a));
+                    items.Add(new TreeViewItemData<Node>(id++, new Node { Kind = g.Key, Count = children.Count, Severity = severity, AllFixed = allFixed }, children));
                 }
             }
             tree.SetRootItems(items);
@@ -132,6 +133,8 @@ namespace Urpify.UI
             emptyList.style.display = empty ? DisplayStyle.Flex : DisplayStyle.None;
             emptyList.text = report == null ? Loc.Get("ui.list.noScan") : quick != null ? Loc.Get("ui.list.noMatchQuick", quick.Label) : Loc.Get("ui.list.noMatch");
         }
+
+        bool Fixed(AssetSummary a) => ctx.Summary?.Migrated == true && ctx.Summary.Get(a.Path)?.Outcome == Pipeline.AssetOutcome.Fixed;
 
         /// <summary>
         /// Who fixes the asset: after the migration, who fixed it or who is left to (the migration's result); before it, what
@@ -203,6 +206,7 @@ namespace Urpify.UI
                 name.AddToClassList("urpify-row-group");
                 tier.text = "";
                 e.tooltip = "";
+                e.EnableInClassList("urpify-row-fixed", n.AllFixed);
             }
             else
             {

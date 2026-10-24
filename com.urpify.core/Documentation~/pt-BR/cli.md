@@ -79,6 +79,8 @@ etapa roda no seu próprio processo. Backup roda antes de Capture before, e Capt
 rodar as cenas, a Unity salva de novo assets antigos e os pacotes criam arquivos, e o backup precisa guardar o projeto
 como ele era.
 
+A versão da Asset Store não instala pacotes: instale o URP no Package Manager antes de `install-urp`, que então só o confere. Um projeto cujo conversor da Unity precisa da janela dele (com Post-processing v2, Unity 6000.3) roda `unity-converter` pela janela do Urpify.
+
 As etapas que mudam arquivos avisam no log se a árvore de trabalho do git tem mudanças sem commit.
 
 ### Rollback

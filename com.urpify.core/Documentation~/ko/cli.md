@@ -77,6 +77,8 @@ Capture는 각 씬을 Play Mode에서 재생하고 메인 카메라와 모든 Mi
 않습니다: 씬을 재생하면 Unity가 오래된 에셋을 다시 저장하고 패키지가 파일을 만들기 때문에, 백업은 원래 상태의 프로젝트를
 보존해야 합니다.
 
+Asset Store 버전은 패키지를 설치하지 않습니다. `install-urp` 전에 Package Manager에서 URP를 설치하세요. 이 단계는 확인만 합니다. Unity 컨버터를 자체 창에서 실행해야 하는 프로젝트(Post-processing v2 사용, Unity 6000.3)는 Urpify 창에서 `unity-converter`를 실행하세요.
+
 파일을 바꾸는 단계는 git 작업 트리에 커밋하지 않은 변경이 있으면 로그에 경고합니다.
 
 ### Rollback

@@ -182,6 +182,7 @@ namespace Urpify.Cli
                 foreach (var f in r.Skipped) Log("  changed after the migration, not touched: " + f);
                 foreach (var f in r.Between) Log("  appeared or changed between steps, not touched: " + f);
                 foreach (var e in r.Errors) Log("  error: " + e);
+                if (BuildInfo.AssetStore && UrpInstaller.InManifest()) Log(Loc.Get("ui.migrate.rollbackUrpStays"));
                 Directory.CreateDirectory("Urpify");
                 File.WriteAllText("Urpify/rollback-latest.json", JsonUtility.ToJson(r, true));
                 code = r.Errors.Count == 0 ? 0 : 1;

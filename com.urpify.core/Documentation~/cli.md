@@ -78,6 +78,8 @@ Steps, in order, one per Editor process: `scan`, `backup`, `capture-before`, `in
 each step runs in its own process. Backup runs before Capture before, which refuses to run without a backup: playing
 scenes lets Unity re-save old assets and lets packages create files, and the backup must hold the project as it was.
 
+The Asset Store version installs no package: install URP in the Package Manager before `install-urp`, which then only checks it. A project whose Unity converter needs its window (Post-processing v2 in use, Unity 6000.3) runs `unity-converter` from the Urpify window.
+
 The steps that change files warn in the log when the git working tree has uncommitted changes.
 
 ### Rollback

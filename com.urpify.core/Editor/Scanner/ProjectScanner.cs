@@ -27,7 +27,7 @@ namespace Urpify.Scanner
     /// </summary>
     public sealed class ProjectScanner
     {
-        public const string KitVersion = "1.0.0";
+        public static readonly string KitVersion = BuildInfo.Version;
 
         public MigrationReport Report { get; private set; }
         public string Status { get; private set; } = "";

@@ -7,19 +7,27 @@
 
 Установите в проект, который ещё на встроенном конвейере:
 
-- **Urpify Pro:** один файл, `Urpify-Pro-1.0.0.unitypackage` (из Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, импортируйте всё: в файле Urpify, Urpify Pro, демо и эта документация.
+- **Urpify Pro:** один файл, `Urpify-Pro-1.0.1.unitypackage` (из Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, импортируйте всё: в файле Urpify, Urpify Pro, демо и эта документация.
   Бесплатный Urpify уже установлен из `.unitypackage` — импортируйте Pro поверх, удалять ничего не нужно. Установлен через
   Package Manager — сначала удалите его там (Package Manager > Urpify > Remove): Urpify Pro уже содержит его.
-- **Urpify (бесплатный):** `Urpify-1.0.0.unitypackage` из [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+- **Urpify (бесплатный):** `Urpify-1.0.1.unitypackage` из [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
   импорт так же, или Package Manager > `+` > Add package from git URL:
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1`.
 
 Перед миграцией закоммитьте проект в систему контроля версий. Urpify делает бэкап каждого изменяемого файла, но коммит —
 самая надёжная точка восстановления.
 
+**Версия из Asset Store** следует правилу магазина: пакет не устанавливает и не удаляет другие пакеты, поэтому там
+по-другому работают две вещи. **Install URP** открывает Universal RP в Package Manager: нажмите **Install**, и шаг сам
+продолжится, когда URP загрузится. Откат восстанавливает всё остальное, но `Packages/manifest.json` и `packages-lock.json`
+оставляет как есть: URP остаётся установленным и не используется, а в сообщении об откате есть кнопка, которая открывает
+Package Manager, чтобы его удалить. Пока URP установлен, Unity при открытии проекта добавляет собственные файлы настроек URP (глобальные настройки URP, настройки Shader Graph, строку в настройках Graphics); проект по-прежнему рисуется в Built-in. Окно на английском, пока вы не выберете язык в настройках Urpify. На некоторых
+проектах (используется Post-processing v2, Unity 6000.3) конвертер Unity работает в своём окне: сконвертируйте там и
+нажмите **Продолжить** у шага.
+
 ## 2. Откройте демо (по желанию)
 
-Help > Urpify > **Import Demo** или **Импортировать демо** в пустом окне Urpify. Демо попадёт в `Assets/Samples/Urpify/1.0.0/Demo`, его сцена
+Help > Urpify > **Import Demo** или **Импортировать демо** в пустом окне Urpify. Демо попадёт в `Assets/Samples/Urpify/1.0.1/Demo`, его сцена
 откроется. При установке через Package Manager то же делает Package Manager > Urpify > Samples > **Demo** > Import. В сцене по
 стенду на каждую конструкцию, которая ломается в URP: surface-шейдеры, освещённый vert/frag-шейдер, стекло с GrabPass,
 вода, читающая глубину, проектор, зеркало, материал из кода и стекло в режиме Standard Transparent. У каждого стенда

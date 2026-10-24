@@ -91,8 +91,12 @@ namespace Urpify.Pipeline
 
         public BackupStore(string projectRoot) { root = Path.GetFullPath(projectRoot); }
 
+        static int s_Hashed, s_Listed;
+
         public static string Hash(string file)
         {
+            // A large project hashes for minutes: the command line's watchdog must see that the step is alive (R-10).
+            if (++s_Hashed % 200 == 0) StepProgress.Report("backup: hashing project files", s_Hashed);
             using (var sha = SHA1.Create())
             using (var s = File.OpenRead(file))
             {
@@ -111,9 +115,20 @@ namespace Urpify.Pipeline
                 var abs = Path.Combine(root, folder);
                 if (!Directory.Exists(abs)) continue;
                 foreach (var f in Directory.EnumerateFiles(abs, "*", SearchOption.AllDirectories))
-                    yield return Rel(f);
+                {
+                    if (++s_Listed % 2000 == 0) StepProgress.Report("backup: listing project files", s_Listed);
+                    var rel = Rel(f);
+                    if (!LeftToPackageManager(rel)) yield return rel;
+                }
             }
         }
+
+        /// <summary>
+        /// The project's package list, which the Asset Store build never backs up or rolls back (Submission Guidelines
+        /// 2.5.1.e: an offering must not add, update or remove packages): URP stays installed after a rollback there.
+        /// </summary>
+        public static bool LeftToPackageManager(string rel) =>
+            BuildInfo.AssetStore && (rel == "Packages/manifest.json" || rel == "Packages/packages-lock.json");
 
         public bool ShouldCopy(string rel) => !SkipContent.Contains(Path.GetExtension(rel));
 

@@ -28,7 +28,8 @@ namespace Urpify.Pipeline
                 foreach (var f in Directory.EnumerateFiles(ps, "*", SearchOption.AllDirectories)) yield return Rel(root, f);
             var pk = Path.Combine(root, "Packages");
             if (Directory.Exists(pk))
-                foreach (var f in Directory.EnumerateFiles(pk, "*", SearchOption.TopDirectoryOnly)) yield return Rel(root, f);
+                foreach (var f in Directory.EnumerateFiles(pk, "*", SearchOption.TopDirectoryOnly))
+                    if (!BackupStore.LeftToPackageManager(Rel(root, f))) yield return Rel(root, f);
         }
 
         static string Rel(string root, string abs) => abs.Substring(Path.GetFullPath(root).Length).TrimStart('\\', '/').Replace('\\', '/');

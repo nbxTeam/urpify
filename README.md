@@ -26,14 +26,14 @@ pipelines, and the export of converted `.unitypackage` files.
 
 Unity 2022.3 LTS, 6000.0 LTS, 6000.3 LTS, 6000.5 or 6000.6 (the versions tested), in a project that uses the Built-in Render Pipeline.
 
-**The simplest way:** download `Urpify-1.0.0.unitypackage` from
+**The simplest way:** download `Urpify-1.0.1.unitypackage` from
 [Releases](https://github.com/nbxTeam/urpify/releases/latest) and open it in your project (Assets > Import Package >
 Custom Package). The demo scene is inside: Help > Urpify > Import Demo.
 
 **Or with Package Manager:** `+` > **Add package from git URL**:
 
 ```
-https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0
+https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1
 ```
 
 or download this repository and **Add package from disk** > `com.urpify.core/package.json`.

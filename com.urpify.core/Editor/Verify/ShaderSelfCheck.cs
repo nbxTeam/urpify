@@ -224,8 +224,14 @@ namespace Urpify.Verify
             {
                 var asset = UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
                 if (asset == null) return false;
-                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic;
-                var data = asset.GetType().GetProperty("scriptableRendererData", flags)?.GetValue(asset);
+                // The default renderer's data, read from the asset's serialized fields: its scriptableRendererData property is
+                // internal (Asset Store Submission Guidelines 2.5.g: no internal Editor API).
+                var so = new SerializedObject(asset);
+                var list = so.FindProperty("m_RendererDataList");
+                int index = so.FindProperty("m_DefaultRendererIndex")?.intValue ?? 0;
+                if (list == null || !list.isArray || index < 0 || index >= list.arraySize) return false;
+                var data = list.GetArrayElementAtIndex(index).objectReferenceValue;
+                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
                 if (!(data?.GetType().GetProperty("rendererFeatures", flags)?.GetValue(data) is System.Collections.IEnumerable features)) return false;
                 foreach (var f in features)
                 {

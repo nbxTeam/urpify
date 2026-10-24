@@ -68,10 +68,13 @@ namespace Urpify
         /// <summary>
         /// The Editor's interface language (Preferences > Languages). Unity has no public property for it:
         /// UnityEditor.LocalizationDatabase.currentEditorLanguage is internal on 2022.3 and 6000.x, so it is read by
-        /// reflection, and anything unexpected means English.
+        /// reflection, and anything unexpected means English. The Asset Store build uses no internal Editor API (Submission
+        /// Guidelines 2.5.g): there the window is in English until a language is chosen in Urpify's settings.
         /// </summary>
         public static UnityEngine.SystemLanguage EditorLanguage()
         {
+            if (BuildInfo.AssetStore) return UnityEngine.SystemLanguage.English;
+#if !URPIFY_ASSET_STORE
             try
             {
                 var t = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.LocalizationDatabase");
@@ -79,6 +82,7 @@ namespace Urpify
                 if (p?.GetValue(null) is UnityEngine.SystemLanguage l) return l;
             }
             catch { }
+#endif
             return UnityEngine.SystemLanguage.English;
         }
 

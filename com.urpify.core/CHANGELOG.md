@@ -5,7 +5,55 @@ and versions follow [Semantic Versioning](https://semver.org/): a patch release 
 converters, catalog entries or languages without breaking anything, a major release may change the report schema, the
 command line or the project files Urpify writes.
 
-## [1.0.0] - TBD (release date)
+## [1.0.1] - 2026-10-23
+
+### Changed
+- Every text of findings, steps, verdicts and the HTML report is written for the person migrating: what breaks, then who
+  fixes it or what to do. Details about how Urpify works inside are gone from them. English and the seven translations
+  were written again.
+- The HTML report says who fixes each item (Unity's converter, Urpify, Urpify Pro, or by hand) instead of the converters'
+  tiers. The JSON report is unchanged (schema 5).
+- Window: a group in the list shows a tick when everything in it is fixed; the result screen without Urpify's fixes opens
+  the comparison on the frame after, so what broke is in sight; the quick start says Urpify Pro installs from one file.
+- No deprecation warnings on Unity 6000.6, in Urpify and in the files it adds to a project. Those files and the demo's
+  scripts work in Play Mode without a domain reload (Enter Play Mode Options), and the demo's scripts are in the
+  `Urpify.Demo` namespace.
+- The version shown in reports and in exported shader libraries is Urpify's own, also when Urpify was imported from a
+  `.unitypackage`.
+
+### Asset Store version
+The Asset Store version follows the Asset Store's rule that a package never adds, updates or removes other packages, and
+uses no internal Editor API. The same code otherwise:
+- Install URP opens the Package Manager on Universal RP and goes on by itself once you have installed it there. The
+  command line asks for URP to be installed first.
+- A rollback leaves `Packages/manifest.json` and `packages-lock.json` as they are: URP stays installed and unused, and the
+  rollback's message offers to open the Package Manager to remove it. Everything Urpify changed is restored as in the
+  other version, but while URP is installed Unity adds URP's own settings files when the project opens (on URP 14:
+  `Assets/UniversalRenderPipelineGlobalSettings.asset`, `ProjectSettings/ShaderGraphSettings.asset` and a line in
+  `ProjectSettings/GraphicsSettings.asset`), so the project is not byte for byte as before. It still renders with Built-in.
+- The window is in English until you choose a language in Urpify's settings.
+- Where Unity's batch converter cannot run with public API (Post-processing v2 in use, URP 17.3), the step opens Render
+  Pipeline Converter and waits for you to convert there and select Continue. On URP 17.5 and later Unity's read-only
+  material converter is left out of the batch run; Urpify's own fix for the Editor's built-in materials covers them.
+- On Unity 2022.3 and 6000.0 Unity's list of material upgraders is internal, so the fixes that use it (material variants,
+  materials inside models) and, in Pro, the catalog's recipes and package export leave those materials to Unity's converter.
+
+### Fixed
+- Pro: shaders that call `FresnelLerp` or `FresnelLerpFast`, declare `UNITY_VPOS_TYPE ... : VPOS`, define their own
+  attenuation under `#ifdef DIRECTIONAL` in a ForwardBase pass, or return an output struct with `SHADOW_COORDS` that a
+  pass without shadows never sets ("variable 'o' used without having been completely initialized") now convert.
+- Before Unity's converter or Urpify converters run from the window, unsaved changes in open scenes are saved on your
+  answer, or the step does not start (they used to be saved without asking).
+- A long Backup on the command line reports its progress, so the step timeout no longer stops it.
+- A damaged `Urpify/state.json` is kept as `state.json.damaged-<time>` with a warning in the Console, instead of being
+  overwritten.
+- The git check looks only at the Unity project's own folder and gives up after 20 seconds.
+- The Migrate window follows a running chain: a step that starts after the one before it shows as running at once, and a
+  step that waits for you scrolls into view with its buttons.
+- Urpify converters run again in the same Editor session after a failed run compile the rewritten scripts as many times
+  as the first run.
+
+## [1.0.0] - 2026-10-18
 
 First release.
 
@@ -51,6 +99,8 @@ First release.
 - Export of a converted `.unitypackage` for Built-in and URP, with its own copy of the shader library.
 
 ### Known issues
+These stay in 1.0.1: fixing them would change how rollback or the verdicts work, which needs a full
+re-test of both; each item says what to do meanwhile.
 - Install URP interrupted (the Editor closed while the package was being added), then rolled back: the project can keep a
   new `ProjectSettings/ShaderGraphSettings.asset`, which Unity writes when the rollback opens the project with URP still
   in the manifest. It holds settings of a package that is no longer there; delete it if you want the project byte for
@@ -76,27 +126,23 @@ First release.
 - If the Editor closes or crashes while Urpify converters compile the rewritten scripts, the project can be left with
   scripts that do not compile, and Unity offers Safe Mode. Choose Ignore, then roll back the step in Urpify (or restore from
   git).
-- Unity's converter step saves the open scenes, including changes you have not saved; save or discard them before you run
-  the step on its own.
 - Changes made outside Unity (in an IDE, by git) to files a step changed, between command-line steps or after a crash,
   can be taken for the step's and rolled back with it. The rollback keeps the version it replaces in
   `Urpify/Backup/<id>/replaced/` and lists it; still, do not edit the project between steps, and commit before migrating.
-- A long command-line step that reports no progress (Backup or Scan of a very large project on a slow disk) can be
-  stopped by the step timeout. Use `-urpifyStepTimeout 0` for such projects.
+- A long command-line Scan of a very large project on a slow disk can be stopped by the step timeout. Use
+  `-urpifyStepTimeout 0` for such projects.
 - After a command-line rollback, the next Editor start puts `ProjectSettings` and `Packages/manifest.json` back as the
   rollback left them, also when git changed them in between. Open the project in Unity once right after a command-line
   rollback.
-- A damaged `Urpify/state.json` is replaced by an empty one without a warning: the steps show as not run and the rollback
+- After `Urpify/state.json` is damaged (it is kept aside with a warning), the steps show as not run and the rollback
   buttons are gone, while the backups stay in `Urpify/Backup`. Keep the `Urpify` folder out of cloud sync.
 - Smaller ones: a rollback restores a file you deleted after the migration; a file another program holds exclusively
   stops a step from starting (the error is in the Console); one scene that fails to capture stops the capture of the
   remaining ones, and two scenes whose paths differ only in `/` and `_` overwrite each other's images; Bake environment
   interrupted by a crash stays running; converting one shader in the shader panel is not part of the migration's
   backups (Roll back all does not undo it; the original is in `Urpify/Backup/ShaderPanel`); exporting a package overwrites
-  Urpify's runtime files outside the migration's backup; the git check can wait without a time limit for a git that does
-  not answer, and warns before every step when the Unity project is a subfolder of the repository; in a ParrelSync clone
-  (linked `Assets`) the migration changes the main project's files; after a failed Urpify converters run, run it again in a
-  new Editor session; some inserted lines end in LF in a file with CRLF line endings, and Unity
-  warns about inconsistent line endings.
+  Urpify's runtime files outside the migration's backup; in a ParrelSync clone (linked `Assets`) the migration changes
+  the main project's files; some inserted lines end in LF in a file with CRLF line endings, and Unity warns about
+  inconsistent line endings.
 - A shader that includes a file outside the project (`../../Shared/Lighting.cginc`) gets the converted copy written next
   to that file, outside the project and its backup.

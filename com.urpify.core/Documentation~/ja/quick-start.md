@@ -7,21 +7,28 @@
 
 まだ Built-in Render Pipeline を使っているプロジェクトにインストールします。
 
-- **Urpify Pro：** ファイルは `Urpify-Pro-1.0.0.unitypackage` の 1 つだけです（Asset Store から：Package Manager >
+- **Urpify Pro：** ファイルは `Urpify-Pro-1.0.1.unitypackage` の 1 つだけです（Asset Store から：Package Manager >
   My Assets > Import）。Assets > Import Package > Custom Package ですべてをインポートします。Urpify、
   Urpify Pro、デモ、このドキュメントがすべて入っています。無料版の Urpify を `.unitypackage` からインストール済みの場合は、
   その上に Pro をインポートするだけで、削除するものはありません。Package Manager でインストールした場合は、先にそこで
   削除してください（Package Manager > Urpify > Remove）。Urpify Pro に含まれているためです。
 - **Urpify（無料版）：** [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest) の
-  `Urpify-1.0.0.unitypackage` を同じ方法でインポートするか、Package Manager > `+` > Add package from git URL で
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0` を追加します。
+  `Urpify-1.0.1.unitypackage` を同じ方法でインポートするか、Package Manager > `+` > Add package from git URL で
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1` を追加します。
 
 移行の前にプロジェクトをバージョン管理にコミットしてください。Urpify は変更するファイルをすべてバックアップしますが、
 最も安全な復元ポイントはコミットです。
 
+**Asset Store 版**は、パッケージが他のパッケージを追加・削除しないというストアの規則に従うため、2 つの点が異なります。
+**Install URP** は Package Manager で Universal RP を開きます。**Install** をクリックすると、URP が読み込まれた時点で
+ステップが自動で続行します。ロールバックは他のすべてを元に戻しますが、`Packages/manifest.json` と `packages-lock.json`
+はそのままです。URP はインストールされたまま使われず、ロールバックのメッセージには削除のために Package Manager を開く
+ボタンがあります。URP がインストールされている間は、プロジェクトを開くと Unity が URP 自身の設定ファイル（URP のグローバル設定、Shader Graph の設定、Graphics 設定の 1 行）を追加します。プロジェクトは引き続き Built-in で描画されます。Urpify の設定で言語を選ぶまで、ウィンドウは英語です。一部のプロジェクト（Post-processing v2 を使用、
+Unity 6000.3）では Unity のコンバーターが専用ウィンドウで動きます。そこで変換してから、ステップの **続行** を選んでください。
+
 ## 2. デモを開く（任意）
 
-Help > Urpify > **Import Demo**、または空の Urpify ウィンドウの **デモをインポート** を実行します。デモは `Assets/Samples/Urpify/1.0.0/Demo` に入り、
+Help > Urpify > **Import Demo**、または空の Urpify ウィンドウの **デモをインポート** を実行します。デモは `Assets/Samples/Urpify/1.0.1/Demo` に入り、
 そのシーンが開きます。Package Manager でインストールした場合は、Package Manager > Urpify > Samples > **Demo** > Import でも同じです。
 シーンには URP で壊れる構成要素ごとにブースがあります：サーフェスシェーダー、ライティングありの vert/frag シェーダー、
 GrabPass のガラス、深度を読む水、プロジェクター、スクリプトで描画する鏡、コードで作るマテリアル、Standard Transparent

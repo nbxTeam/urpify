@@ -73,8 +73,10 @@ namespace Urpify.Pipeline
 
         public static CompareThresholds Thresholds = new CompareThresholds();
 
+#if !URPIFY_ASSET_STORE
         static AddRequest addRequest;
         static int addAttempts;
+#endif
         static int reloadWaitTicks;
 
         /// <summary>Raised when a step finishes (done, failed or skipped). The window refreshes on it.</summary>
@@ -129,6 +131,10 @@ namespace Urpify.Pipeline
                 // 17.10.2026; the step was then closed as interrupted and the batch Editor never quit).
                 EditorApplication.update -= WaitForUrp;
                 EditorApplication.update += WaitForUrp;
+            }
+            else if ((StepId)st.Running == StepId.UnityConverter && rec.Phase == PhaseWaitingForPerson)
+            {
+                // Asset Store build: the person converts in Unity's window; the step waits for Continue.
             }
             else if ((StepId)st.Running == StepId.KitConverters && rec.Phase == 1)
             {
@@ -605,6 +611,8 @@ namespace Urpify.Pipeline
                 Finish(st, rec, StepStatus.Done, "URP is already installed and loaded.");
                 return;
             }
+            if (BuildInfo.AssetStore) { StartInstallUrpByHand(st, rec); return; }
+#if !URPIFY_ASSET_STORE
             var version = UrpInstaller.BundledVersion();
             if (version == null) { Finish(st, rec, StepStatus.Failed, "This Editor does not ship URP in BuiltInPackages; install it from the Package Manager."); return; }
             var snap = new BackupStore(".").Begin(StepId.InstallUrp.ToString());
@@ -627,7 +635,53 @@ namespace Urpify.Pipeline
             reloadWaitTicks = 0;
             EditorApplication.update -= WaitForUrp;
             EditorApplication.update += WaitForUrp;
+#endif
         }
+
+        /// <summary>Phase of Install URP in the Asset Store build while the step waits for URP to be installed by hand.</summary>
+        public const int PhaseWaitingForPerson = 3;
+
+        /// <summary>
+        /// Install URP in the Asset Store build (Submission Guidelines 2.5.1.e: an offering must not add packages to the
+        /// project): the Package Manager opens on URP, the person clicks Install there, and the step goes on once URP is loaded
+        /// (it survives the domain reload the install brings). The command line cannot wait for a person: it asks for URP first.
+        /// </summary>
+        static void StartInstallUrpByHand(MigrationState st, StepRecord rec)
+        {
+            if (Application.isBatchMode)
+            {
+                Finish(st, rec, StepStatus.Failed, Loc.Get("step.InstallUrp.storeCli"));
+                return;
+            }
+            var snap = new BackupStore(".").Begin(StepId.InstallUrp.ToString());
+            rec.SnapshotId = snap.Id;
+            rec.Phase = PhaseWaitingForPerson;
+            rec.Details.Add("Package Manager opened on " + UrpInstaller.PackageName + "; waiting for it to be installed.");
+            rec.SetResult("step.InstallUrp.storeWaiting");
+            st.Save();
+            OpenPackageManagerOnUrp();
+            reloadWaitTicks = 0;
+            EditorApplication.update -= WaitForUrp;
+            EditorApplication.update += WaitForUrp;
+        }
+
+        /// <summary>Package Manager > Unity Registry, on URP (public API, also after a rollback to remove it).</summary>
+        public static void OpenPackageManagerOnUrp() => UnityEditor.PackageManager.UI.Window.Open(UrpInstaller.PackageName);
+
+        /// <summary>
+        /// Stops waiting for the person (Asset Store build): the step ends as failed, its backup is closed with whatever
+        /// changed meanwhile, so a rollback still undoes it.
+        /// </summary>
+        public static void StopWaitingForPerson()
+        {
+            var st = MigrationState.Load();
+            if (st.Running < 0 || st.Get((StepId)st.Running).Phase != PhaseWaitingForPerson) return;
+            EditorApplication.update -= WaitForUrp;
+            Finish(st, st.Get((StepId)st.Running), StepStatus.Failed, Loc.Get("step.storeStopped"));
+        }
+
+        /// <summary>The running step waits for the person (Asset Store build: Install URP or Unity's converter by hand).</summary>
+        public static bool WaitingForPerson(MigrationState st) => st.Running >= 0 && st.Get((StepId)st.Running).Phase == PhaseWaitingForPerson;
 
         /// <summary>A Package Manager add that it cancelled itself is asked once more (QA-019); anything else fails the step.</summary>
         public static bool RetryAdd(string error, int attempts) => attempts < 2 && (error ?? "").IndexOf("cancel", StringComparison.OrdinalIgnoreCase) >= 0;
@@ -636,6 +690,7 @@ namespace Urpify.Pipeline
 
         static void WaitForUrpTick()
         {
+#if !URPIFY_ASSET_STORE
             if (addRequest != null)
             {
                 if (!addRequest.IsCompleted) return;
@@ -662,6 +717,7 @@ namespace Urpify.Pipeline
                 }
                 addRequest = null;
             }
+#endif
             if (EditorApplication.isCompiling || EditorApplication.isUpdating) { reloadWaitTicks = 0; return; }
             var st = MigrationState.Load();
             var rec = st.Get(StepId.InstallUrp);
@@ -671,10 +727,14 @@ namespace Urpify.Pipeline
                 var store = new BackupStore(".");
                 var snap = store.Load(rec.SnapshotId);
                 if (snap != null) { store.Complete(snap); rec.Details.Add($"{snap.Changed.Count} files changed, {snap.Created.Count} created"); }
-                rec.SetResult("step.InstallUrp.result", UrpInstaller.BundledVersion() ?? "");
-                Finish(st, rec, StepStatus.Done, "URP " + UrpInstaller.BundledVersion() + " installed and loaded.");
+                var installed = rec.Phase == PhaseWaitingForPerson ? UrpInstaller.LoadedVersion() : UrpInstaller.BundledVersion();
+                rec.SetResult("step.InstallUrp.result", installed ?? "");
+                Finish(st, rec, StepStatus.Done, "URP " + installed + " installed and loaded.");
                 return;
             }
+            // The person installs URP in the Package Manager: no time limit.
+            if (rec.Phase == PhaseWaitingForPerson) return;
+#if !URPIFY_ASSET_STORE
             // Give the Package Manager time to resolve and compile after the reload.
             if (++reloadWaitTicks < 3000) return;
             EditorApplication.update -= WaitForUrp;
@@ -689,6 +749,7 @@ namespace Urpify.Pipeline
             }
             Finish(st, rec, StepStatus.Failed,
                 "URP is in Packages/manifest.json but its assemblies did not load. Close the Editor, delete Library/PackageManager/ProjectCache and open the project again.");
+#endif
         }
 
         static void RunUnityConverter(MigrationState st, StepRecord rec)
@@ -701,9 +762,52 @@ namespace Urpify.Pipeline
             // Post-processing v2 needs Unity Search, so the converter may finish in a later Editor update.
             UnityConverterRunner.RunAsync(result => Guarded(StepId.UnityConverter, () =>
             {
+                if (result.ByHand) { WaitForConverterWindow(MigrationState.Load(), result); return; }
                 AssetDatabase.SaveAssets();
                 AfterPendingImports(StepId.UnityConverter, () => CompleteUnityConverter(MigrationState.Load(), store, snap, result));
             }));
+        }
+
+        /// <summary>
+        /// Asset Store build, when Unity's batch converter cannot do the job with public API (Post-processing v2, URP 17.3):
+        /// Unity's converter window opens, the person converts there, and the step waits, its backup open, until they press
+        /// Continue (<see cref="ContinueAfterConverterWindow"/>), so the rollback undoes what they converted.
+        /// </summary>
+        static void WaitForConverterWindow(MigrationState st, ConverterRunResult result)
+        {
+            var rec = st.Get(StepId.UnityConverter);
+            if (Application.isBatchMode)
+            {
+                rec.Details.AddRange(result.Notes);
+                Finish(st, rec, StepStatus.Failed, Loc.Get("step.UnityConverter.storeCli"));
+                return;
+            }
+            rec.Phase = PhaseWaitingForPerson;
+            rec.Details.AddRange(result.Notes);
+            rec.SetResult("step.UnityConverter.storeWaiting");
+            st.Save();
+            OpenConverterWindow();
+        }
+
+        public static void OpenConverterWindow() => EditorApplication.ExecuteMenuItem(UnityConverterRunner.ConverterWindowMenu);
+
+        /// <summary>The person converted in Unity's window (Asset Store build): the step saves, rescans and ends as usual.</summary>
+        public static void ContinueAfterConverterWindow()
+        {
+            var st = MigrationState.Load();
+            if (st.Running != (int)StepId.UnityConverter || st.Get(StepId.UnityConverter).Phase != PhaseWaitingForPerson) return;
+            var rec = st.Get(StepId.UnityConverter);
+            var store = new BackupStore(".");
+            var snap = store.Load(rec.SnapshotId);
+            if (snap == null) { Finish(st, rec, StepStatus.Failed, "The step's backup is missing."); return; }
+            var result = new ConverterRunResult { Ran = true, Api = "Render Pipeline Converter window, by hand" };
+            result.Notes.AddRange(rec.Details);
+            rec.Details.Clear();
+            Guarded(StepId.UnityConverter, () =>
+            {
+                AssetDatabase.SaveAssets();
+                AfterPendingImports(StepId.UnityConverter, () => CompleteUnityConverter(MigrationState.Load(), store, snap, result));
+            });
         }
 
         static void CompleteUnityConverter(MigrationState st, BackupStore store, Snapshot snap, ConverterRunResult result)
@@ -759,6 +863,8 @@ namespace Urpify.Pipeline
             var snap = store.Begin(StepId.KitConverters.ToString());
             rec.SnapshotId = snap.Id;
             st.Save();
+            // A run after a failed one in the same session starts its compile rounds again (code review R-15.11).
+            s_CompileRounds = 0;
 
             foreach (var conv in converters) InstallRuntimeFiles(conv);
 

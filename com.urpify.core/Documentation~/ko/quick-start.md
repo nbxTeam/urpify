@@ -7,20 +7,27 @@
 
 아직 Built-in Render Pipeline을 쓰는 프로젝트에 설치합니다.
 
-- **Urpify Pro:** 파일은 `Urpify-Pro-1.0.0.unitypackage` 하나입니다(Asset Store에서: Package Manager > My Assets > Import). Assets > Import Package > Custom Package에서 전부 가져옵니다. Urpify, Urpify Pro, 데모, 이
+- **Urpify Pro:** 파일은 `Urpify-Pro-1.0.1.unitypackage` 하나입니다(Asset Store에서: Package Manager > My Assets > Import). Assets > Import Package > Custom Package에서 전부 가져옵니다. Urpify, Urpify Pro, 데모, 이
   문서가 모두 들어 있습니다. 무료 Urpify를 `.unitypackage`로 이미 설치했다면 그 위에 Pro를 가져오면 되고, 지울 것은
   없습니다. Package Manager로 설치했다면 먼저 거기서 제거하세요(Package Manager > Urpify > Remove). Urpify Pro에 이미
   들어 있기 때문입니다.
 - **Urpify(무료):** [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest)의
-  `Urpify-1.0.0.unitypackage`를 같은 방법으로 가져오거나, Package Manager > `+` > Add package from git URL에
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`을 입력합니다.
+  `Urpify-1.0.1.unitypackage`를 같은 방법으로 가져오거나, Package Manager > `+` > Add package from git URL에
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1`을 입력합니다.
 
 마이그레이션하기 전에 프로젝트를 버전 관리에 커밋하세요. Urpify는 바꾸는 모든 파일을 백업하지만, 가장 안전한 복원 지점은
 커밋입니다.
 
+**Asset Store 버전**은 패키지가 다른 패키지를 추가하거나 제거하지 않는다는 스토어 규칙을 따르므로 두 가지가 다르게
+동작합니다. **Install URP**는 Package Manager에서 Universal RP를 엽니다. **Install**을 클릭하면 URP가 로드된 뒤 단계가
+자동으로 계속됩니다. 롤백은 나머지를 모두 복원하지만 `Packages/manifest.json`과 `packages-lock.json`은 그대로 둡니다.
+URP는 설치된 채 사용되지 않으며, 롤백 메시지에 제거용 Package Manager를 여는 버튼이 있습니다. URP가 설치되어 있는 동안 Unity는 프로젝트를 열 때 URP 자체 설정 파일(URP 전역 설정, Shader Graph 설정, Graphics 설정의 한 줄)을 추가합니다. 프로젝트는 계속 Built-in으로 렌더링됩니다. Urpify 설정에서 언어를
+고르기 전까지 창은 영어입니다. 일부 프로젝트(Post-processing v2 사용, Unity 6000.3)에서는 Unity 컨버터가 자체 창에서
+실행됩니다. 거기서 변환한 다음 단계에서 **계속**을 선택하세요.
+
 ## 2. 데모 열기(선택)
 
-Help > Urpify > **Import Demo**를 실행하거나, 비어 있는 Urpify 창에서 **데모 가져오기**를 누릅니다. 데모는 `Assets/Samples/Urpify/1.0.0/Demo`에
+Help > Urpify > **Import Demo**를 실행하거나, 비어 있는 Urpify 창에서 **데모 가져오기**를 누릅니다. 데모는 `Assets/Samples/Urpify/1.0.1/Demo`에
 들어가고 씬이 열립니다. Package Manager로 설치했다면 Package Manager > Urpify > Samples > **Demo** > Import도 같습니다. 씬에는 URP에서
 깨지는 구성 요소마다 부스가 하나씩 있습니다: 서피스 셰이더, 라이팅이 있는 vert/frag 셰이더, GrabPass 유리, 깊이를 읽는 물,
 프로젝터, 스크립트가 렌더링하는 거울, 코드로 만드는 머티리얼, Standard Transparent 모드의 유리. 각 부스에 Migration

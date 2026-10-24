@@ -72,7 +72,8 @@ namespace Urpify.UI
                 verdict.AddToClassList("urpify-result-verdict");
                 sceneHead.Add(verdict);
                 page.Add(sceneHead);
-                if (view != null) page.Add(new CompareView(view.Before, view.After, view.Diff));
+                // Without Urpify's fixes the screen is about what broke: the curtain starts open on the frame after (1.0.1).
+                if (view != null) page.Add(new CompareView(view.Before, view.After, view.Diff, s.UrpifyDone ? 0.5f : 0.1f));
                 if (scenes.Count > 1)
                     page.Add(UiKit.Link(Loc.Get("ui.result.allScenes", scenes.Count), CompareScenesWindow.Open));
             }

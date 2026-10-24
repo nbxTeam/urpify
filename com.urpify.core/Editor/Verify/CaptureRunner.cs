@@ -372,7 +372,7 @@ namespace Urpify.Verify
             var cam = MainCamera();
             if (cam == null) { result.Error = "No enabled camera renders to the screen."; return; }
             var views = new List<(string name, Vector3 pos, Quaternion rot, float fov, float far)> { ("Main Camera", cam.transform.position, cam.transform.rotation, cam.fieldOfView, cam.farClipPlane) };
-            foreach (var vp in UnityEngine.Object.FindObjectsByType<MigrationViewpoint>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            foreach (var vp in FindAll<MigrationViewpoint>()
                          .OrderBy(v => HierarchyPath(v.transform), StringComparer.Ordinal))
                 views.Add((HierarchyPath(vp.transform), vp.transform.position, vp.transform.rotation, vp.fieldOfView > 0 ? vp.fieldOfView : cam.fieldOfView,
                     vp.farClipPlane > 0 ? vp.farClipPlane : cam.farClipPlane));
@@ -461,9 +461,17 @@ namespace Urpify.Verify
             RenderTexture.active = prev;
         }
 
+        /// <summary>Active objects of a type, in no particular order (the callers sort): Unity 6.6 deprecates the sort mode.</summary>
+        static T[] FindAll<T>() where T : UnityEngine.Object =>
+#if UNITY_6000_6_OR_NEWER
+            UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Exclude);
+#else
+            UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+#endif
+
         /// <summary>MainCamera tag first, otherwise the highest depth; only enabled cameras that render to the screen.</summary>
         public static Camera MainCamera() =>
-            UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsInactive.Exclude, FindObjectsSortMode.None)
+            FindAll<Camera>()
                 .Where(c => c.enabled && c.gameObject.activeInHierarchy && c.targetTexture == null)
                 .OrderByDescending(c => c.CompareTag("MainCamera")).ThenByDescending(c => c.depth).ThenBy(c => c.name, StringComparer.Ordinal)
                 .FirstOrDefault();
@@ -471,7 +479,7 @@ namespace Urpify.Verify
         /// <summary>Particles restart from a fixed seed and are simulated for the same time in every capture.</summary>
         static void PrepareParticles()
         {
-            var systems = UnityEngine.Object.FindObjectsByType<ParticleSystem>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            var systems = FindAll<ParticleSystem>();
             float t = (float)job.Settings.Frames / Mathf.Max(1, job.Settings.Fps);
             foreach (var ps in systems)
             {

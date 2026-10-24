@@ -31,6 +31,11 @@ namespace Urpify.Pipeline
         public List<string> Log = new List<string>();
         /// <summary>What Urpify did differently from a plain run, and why (shown with the step result).</summary>
         public List<string> Notes = new List<string>();
+        /// <summary>
+        /// Asset Store build: the batch run cannot do it with public API only, so the person runs Unity's converter in its
+        /// window (<see cref="UnityConverterRunner.ConverterWindowMenu"/>) and the step waits for them.
+        /// </summary>
+        public bool ByHand;
     }
 
     /// <summary>
@@ -115,7 +120,8 @@ namespace Urpify.Pipeline
                 invoke();
                 result.Ran = true;
             }
-            catch (TargetInvocationException e) when (e.InnerException is MissingMethodException && BatchWithoutAbstract(convertersType, ppv2Converter) is Action batch)
+#if !URPIFY_ASSET_STORE
+            catch (TargetInvocationException e) when (!BuildInfo.AssetStore && e.InnerException is MissingMethodException && BatchWithoutAbstract(convertersType, ppv2Converter) is Action batch)
             {
                 // Item 6 below: nothing was converted yet (the exception comes from listing the converters).
                 result.Notes.Add(AbstractConverterNote + " (" + e.InnerException.Message + ")");
@@ -123,6 +129,14 @@ namespace Urpify.Pipeline
                 try { batch(); result.Ran = true; }
                 catch (TargetInvocationException e2) { result.Error = (e2.InnerException ?? e2).GetType().Name + ": " + (e2.InnerException ?? e2).Message; }
                 catch (Exception e2) { result.Error = e2.GetType().Name + ": " + e2.Message; }
+            }
+#endif
+            catch (TargetInvocationException e) when (BuildInfo.AssetStore && e.InnerException is MissingMethodException)
+            {
+                // Item 6 below, in the Asset Store build: its workaround calls an internal method, so the person converts in
+                // the window instead (nothing was converted yet).
+                result.ByHand = true;
+                result.Notes.Add(AbstractConverterByHandNote);
             }
             catch (TargetInvocationException e)
             {
@@ -141,6 +155,12 @@ namespace Urpify.Pipeline
             return result;
         }
 
+        public const string AbstractConverterByHandNote = "Unity's batch converter fails on this URP version before it converts anything (it creates " +
+            "the abstract Base2DMaterialUpgrader). Run Unity's converter in its window instead: Window > Rendering > Render Pipeline Converter.";
+
+        /// <summary>Unity's converter window, opened with the public menu item when the person converts by hand.</summary>
+        public const string ConverterWindowMenu = "Window/Rendering/Render Pipeline Converter";
+
         public const string AbstractConverterNote = "Unity's batch converter could not list its converters on this URP version: it creates every " +
             "RenderPipelineConverter type, the abstract Base2DMaterialUpgrader included. Urpify listed the Built-in to URP converters itself and ran them the same way.";
 
@@ -152,6 +172,7 @@ namespace Urpify.Pipeline
         /// converter when Post-processing v2 is installed, as <see cref="Resolve"/> does) and hands them to the internal
         /// Converters.BatchConverters, which is what RunInBatchMode calls next. Null when this URP has no such method.
         /// </summary>
+#if !URPIFY_ASSET_STORE
         static Action BatchWithoutAbstract(Type t, Type ppv2Converter)
         {
             const BindingFlags Any = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
@@ -175,18 +196,20 @@ namespace Urpify.Pipeline
                 batch.Invoke(null, new object[] { list });
             };
         }
+#endif
 
         /// <summary>Picks the API: URP 17 (string container, List&lt;string&gt;, bool) or URP 14 (ConverterContainerId enum).</summary>
         static (Action invoke, string api, string note) Resolve(Type t, Type ppv2Converter)
         {
             const BindingFlags Pub = BindingFlags.Public | BindingFlags.Static;
-            const BindingFlags Internal = BindingFlags.NonPublic | BindingFlags.Static;
             var m17 = t.GetMethod("RunInBatchMode", Pub, null, new[] { typeof(string), typeof(List<string>), typeof(bool) }, null);
             if (m17 != null)
                 return (() => m17.Invoke(null, new object[] { Container, new List<string>(), false }), "RunInBatchMode(string, List<string> empty, exclusive)", null);
             var enumType = t.Assembly.GetType("UnityEditor.Rendering.Universal.ConverterContainerId", false);
             if (enumType != null)
             {
+#if !URPIFY_ASSET_STORE
+                const BindingFlags Internal = BindingFlags.NonPublic | BindingFlags.Static;
                 var filterType = t.Assembly.GetType("UnityEditor.Rendering.Universal.ConverterFilter", false);
                 var containerType = t.Assembly.GetType("UnityEditor.Rendering.Universal.BuiltInToURPConverterContainer", false);
                 var baseType = t.Assembly.GetType("UnityEditor.Rendering.Universal.RenderPipelineConverter", false);
@@ -202,6 +225,7 @@ namespace Urpify.Pipeline
                             "RunInBatchMode(BuiltInToURPConverterContainer, every converter but PPv2Converter, Inclusive)", PPv2Skipped);
                     }
                 }
+#endif
                 var m14 = t.GetMethod("RunInBatchMode", Pub, null, new[] { enumType }, null);
                 if (m14 != null)
                     return (() => m14.Invoke(null, new[] { Enum.Parse(enumType, Container) }), "RunInBatchMode(ConverterContainerId)", null);
@@ -226,11 +250,61 @@ namespace Urpify.Pipeline
         {
             var convertersType = FindConvertersType();
             if (convertersType == null) { done(Run(null)); return; }
+            if (BuildInfo.AssetStore) { RunPublic(convertersType, done); return; }
+#if !URPIFY_ASSET_STORE
             var m17 = convertersType.GetMethod("RunInBatchMode", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string), typeof(List<string>), typeof(bool) }, null);
             if (m17 != null) { RunUrp17(convertersType, m17, done); return; }
             var ppv2 = FindPPv2Converter();
             if (ppv2 == null) { done(Run(convertersType, typeof(NoPPv2))); return; }
             RunUrp14(convertersType, ppv2, done);
+#endif
+        }
+
+        /// <summary>
+        /// The Asset Store build (Submission Guidelines 2.5.g: no internal Editor API): Unity's public batch entry points only.
+        /// What they cannot do safely goes to the person, in Unity's converter window: Post-processing v2 (its converter
+        /// waits for Unity Search, items 3-5) and URP 17.3 (item 6). On URP 17.5 and later the read-only material converter,
+        /// which also searches, is left out of the batch: Urpify's own fix for the Editor's built-in materials runs after it.
+        /// </summary>
+        static void RunPublic(Type convertersType, Action<ConverterRunResult> done)
+        {
+            var setup = UnityEditor.SceneManagement.EditorSceneManager.GetSceneManagerSetup();
+            ConverterRunResult result;
+            var m17 = convertersType.GetMethod("RunInBatchMode", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(string), typeof(List<string>), typeof(bool) }, null);
+            // URP 14 with Post-processing v2 installed: its converter waits forever in a batch run (item 3), objects or not.
+            if (PostProcessingV2Objects().Count > 0 || m17 == null && PPv2Installed())
+            {
+                result = new ConverterRunResult { Ran = true, ByHand = true, Api = "Render Pipeline Converter window" };
+                result.Notes.Add(PPv2ByHandNote);
+            }
+            else
+            {
+                var skip = m17 != null && UrpAtLeast(17, 5) ? new List<string> { "ReadonlyMaterial", "PPv2" } : new List<string>();
+                result = m17 != null
+                    ? Capture(() => m17.Invoke(null, new object[] { Container, skip, false }), "RunInBatchMode(string, [" + string.Join(", ", skip) + "], exclusive)")
+                    : Run(convertersType, typeof(NoPPv2));
+                if (!result.Ran && result.Error.Contains(nameof(MissingMethodException)))
+                {
+                    result = new ConverterRunResult { Ran = true, ByHand = true, Api = "Render Pipeline Converter window" };
+                    result.Notes.Add(AbstractConverterByHandNote);
+                }
+            }
+            RestoreScenes(setup);
+            done(result);
+        }
+
+        public const string PPv2ByHandNote = "The project uses Post-processing v2. Its converter needs Unity Search, which a batch run does not wait for: " +
+            "run Unity's converter in its window (Window > Rendering > Render Pipeline Converter), with Post-Processing Stack v2 selected.";
+
+        static bool PPv2Installed() =>
+            AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetType("UnityEngine.Rendering.PostProcessing.PostProcessLayer", false) != null);
+
+        static bool UrpAtLeast(int major, int minor)
+        {
+            var v = UrpInstaller.LoadedVersion();
+            if (v == null) return false;
+            var parts = v.Split('.');
+            return parts.Length >= 2 && int.TryParse(parts[0], out var a) && int.TryParse(parts[1], out var b) && (a > major || a == major && b >= minor);
         }
 
         /// <summary>
@@ -239,6 +313,7 @@ namespace Urpify.Pipeline
         /// scan waited for. A late answer from a scan the batch run did not wait for also crashed the Editor while it quit
         /// (Unity Search stack in the crash reports of the M2-M6 command-line runs).
         /// </summary>
+#if !URPIFY_ASSET_STORE
         static void RunUrp17(Type convertersType, MethodInfo m17, Action<ConverterRunResult> done)
         {
             var setup = UnityEditor.SceneManagement.EditorSceneManager.GetSceneManagerSetup();
@@ -441,6 +516,8 @@ namespace Urpify.Pipeline
             done(result);
         }
 
+#endif
+
         public const string PPv2Direct = "Post-processing v2: converted object by object with the objects Urpify found (Unity's batch run cannot search for them).";
         const string PPv2Manual = "Convert PPv2 volumes from Window > Rendering > Render Pipeline Converter.";
 
@@ -458,6 +535,7 @@ namespace Urpify.Pipeline
         /// terrains whose materials are the built-in ones Unity's map names), fills the converter's list of GlobalObjectIds
         /// and calls OnRun for each, scene by scene, as the converter window does (architect decision 3 after M6).
         /// </summary>
+#if !URPIFY_ASSET_STORE
         static void RunReadonlyUrp14(Type convertersType, ConverterRunResult result)
         {
             const BindingFlags F = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
@@ -521,6 +599,8 @@ namespace Urpify.Pipeline
             }
             finally { RestoreScenes(setup); }
         }
+
+#endif
 
         /// <summary>Renderers and terrains in the project's scenes and prefabs that use the Editor's built-in materials Unity's map names.</summary>
         static List<(string id, string name, string scene)> ReadonlyMaterialObjects(Dictionary<string, string> map)

@@ -147,6 +147,21 @@ namespace Urpify.Pipeline
             return r;
         }
 
+        /// <summary>
+        /// A state file that does not read (a cloud sync conflict, an edit by hand) is moved aside as state.json.damaged-&lt;time&gt;
+        /// with a warning, so the next save does not overwrite it; the backups stay in Urpify/Backup (code review R-13).
+        /// </summary>
+        static void KeepDamaged(string path)
+        {
+            try
+            {
+                var kept = path + ".damaged-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+                File.Move(path, kept);
+                Debug.LogWarning("[Urpify] " + path + " could not be read; it was kept as " + kept + " and the steps start as not run. The backups are still in Urpify/Backup.");
+            }
+            catch (Exception e) { Debug.LogWarning("[Urpify] " + path + " could not be read, nor kept aside: " + e.Message); }
+        }
+
         public static MigrationState Load(string root = ".")
         {
             var p = Path.Combine(root, PathName);
@@ -161,6 +176,7 @@ namespace Urpify.Pipeline
                     if (s != null && !text.Contains("\"Version\"")) s.Version = 1;
                 }
                 catch { s = null; }
+                if (s == null) KeepDamaged(p);
             }
             s = s ?? new MigrationState();
             if (s.Version < 2)

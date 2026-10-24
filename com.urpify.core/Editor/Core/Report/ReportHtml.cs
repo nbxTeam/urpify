@@ -40,13 +40,11 @@ namespace Urpify.Reporting
                   .Append(E(Loc.Get("summary.observedSame", s.ObservedSame))).Append("</p>");
             sb.Append("</section>");
 
+            // Who fixes what, as the window says it (1.0.1): the JSON keeps the converters' tiers for programs.
             sb.Append("<section><h2>").Append(E(Loc.Get("report.fixHeading"))).Append("</h2><table class=\"kv\">");
-            Row(sb, Loc.Get("tier.UnityConverter"), s.TierUnityConverter);
-            Row(sb, Loc.Get("tier.Auto"), s.TierAuto);
-            Row(sb, Loc.Get("tier.AutoApprox"), s.TierAutoApprox);
-            Row(sb, Loc.Get("tier.Review"), s.TierReview);
-            Row(sb, Loc.Get("tier.NotSupportedYet"), s.TierNotSupportedYet);
-            Row(sb, Loc.Get("tier.Manual"), s.TierManual);
+            var owners = r.Assets.Where(a => a.Severity > Severity.Info || a.Tier != FixTier.None).Select(a => Edition.Owner(r, a)).ToList();
+            foreach (var o in new[] { FixOwner.Unity, FixOwner.Free, FixOwner.Pro, FixOwner.Person })
+                Row(sb, Loc.Get("owner." + o), owners.Count(x => x == o));
             sb.Append("</table><p>").Append(E(Loc.Get("summary.kitConverts", s.KitConvertible, s.KitNeeded))).Append("</p>");
             sb.Append("<p class=\"note\">").Append(E(Loc.Get("report.scanStats", r.FilesScanned, r.FilesFromCache, r.ScanSeconds.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture), s.ParseFailures))).Append("</p></section>");
 
@@ -58,7 +56,7 @@ namespace Urpify.Reporting
                 foreach (var sc in r.Scenes.OrderByDescending(x => x.Severity).ThenBy(x => x.Path))
                 {
                     sb.Append("<tr><td class=\"path\">").Append(E(sc.Path)).Append("</td><td>").Append(Badge(sc.Severity)).Append("</td><td>")
-                      .Append(E(sc.Severity == Severity.Info ? "" : Loc.Get("tier." + sc.Tier))).Append("</td><td class=\"path\">")
+                      .Append(E(sc.Severity == Severity.Info || Edition.Owner(sc.Tier, "") == FixOwner.None ? "" : Loc.Get("owner." + Edition.Owner(sc.Tier, "")))).Append("</td><td class=\"path\">")
                       .Append(E(string.Join(", ", sc.Causes.Take(6)))).Append(sc.Causes.Length > 6 ? E(Loc.Get("report.andMore", sc.Causes.Length - 6)) : "")
                       .Append("</td></tr>");
                 }
@@ -77,7 +75,8 @@ namespace Urpify.Reporting
                 {
                     sb.Append("<li>").Append(Badge(f.Severity)).Append(" <strong>").Append(E(f.Title)).Append("</strong>");
                     if (f.Line > 0) sb.Append(" <span class=\"line\">").Append(E(Loc.Get("report.line", f.Line))).Append("</span>");
-                    sb.Append(" <span class=\"tier\">").Append(E(Loc.Get("tier." + f.Tier))).Append("</span>");
+                    var owner = Edition.Owner(f);
+                    if (owner != FixOwner.None) sb.Append(" <span class=\"tier\">").Append(E(Loc.Get("owner." + owner))).Append("</span>");
                     sb.Append("<p>").Append(E(f.Explanation)).Append("</p>");
                     if (!string.IsNullOrEmpty(f.ManualSteps)) sb.Append("<p class=\"manual\">").Append(E(f.ManualSteps)).Append("</p>");
                     if (!string.IsNullOrEmpty(f.Evidence)) sb.Append("<code>").Append(E(f.Evidence)).Append("</code>");

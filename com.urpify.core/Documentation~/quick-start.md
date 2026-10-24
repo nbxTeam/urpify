@@ -6,19 +6,27 @@ The whole cycle in 5 minutes: scan, migrate, compare. Try it on the demo scene f
 
 Install into a project that still uses the Built-in Render Pipeline:
 
-- **Urpify Pro:** one file, `Urpify-Pro-1.0.0.unitypackage` (from the Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, import everything: Urpify, Urpify Pro, the demo and this documentation
+- **Urpify Pro:** one file, `Urpify-Pro-1.0.1.unitypackage` (from the Asset Store: Package Manager > My Assets > Import). Assets > Import Package > Custom Package, import everything: Urpify, Urpify Pro, the demo and this documentation
   are all in it. Free Urpify already installed from a `.unitypackage`: import Pro over it, nothing to remove. Installed
   with the Package Manager: remove it there first (Package Manager > Urpify > Remove), since Urpify Pro contains it.
-- **Urpify (free):** `Urpify-1.0.0.unitypackage` from [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
+- **Urpify (free):** `Urpify-1.0.1.unitypackage` from [GitHub Releases](https://github.com/nbxTeam/urpify/releases/latest),
   imported the same way, or Package Manager > `+` > Add package from git URL:
-  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.0`.
+  `https://github.com/nbxTeam/urpify.git?path=com.urpify.core#v1.0.1`.
 
 Commit your project to version control before you migrate. Urpify backs up every file it changes, but a commit is the
 safest restore point.
 
+**The Asset Store version** follows the Asset Store's rule that a package never adds or removes other packages, so two
+things work differently there. **Install URP** opens the Package Manager on Universal RP: click **Install**, and the step
+goes on by itself once URP is loaded. A rollback restores everything else, but leaves `Packages/manifest.json` and
+`packages-lock.json` as they are: URP stays installed and unused, and the rollback's message has a button that opens
+the Package Manager to remove it. While URP is installed, Unity adds URP's own settings files when the project opens (URP's global settings, Shader Graph settings, a line in Graphics settings); the project still renders with Built-in. The window is in English until you pick a language in Urpify's settings. On some
+projects (Post-processing v2 in use, Unity 6000.3) Unity's converter runs in its own window: convert there, then select
+**Continue** on the step.
+
 ## 2. Open the demo (optional)
 
-Help > Urpify > **Import Demo**, or **Import demo** in the empty Urpify window. The demo goes to `Assets/Samples/Urpify/1.0.0/Demo` and its
+Help > Urpify > **Import Demo**, or **Import demo** in the empty Urpify window. The demo goes to `Assets/Samples/Urpify/1.0.1/Demo` and its
 scene opens. Installed with the Package Manager, Package Manager > Urpify > Samples > **Demo** > Import does the same. The scene has
 one booth per construct that breaks in URP: surface shaders, a lit vert/frag shader, GrabPass glass, water that reads
 depth, a projector, a mirror rendered by a script, a material created in code and glass in Standard Transparent mode. Every booth has a

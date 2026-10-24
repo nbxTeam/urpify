@@ -18,6 +18,7 @@ namespace Urpify.UI
         Button runAll, rollbackAll;
         Label running;
         double nextPoll;
+        string shownSteps = "";
 
         public static void Open()
         {
@@ -64,9 +65,14 @@ namespace Urpify.UI
             if (EditorApplication.timeSinceStartup < nextPoll) return;
             nextPoll = EditorApplication.timeSinceStartup + 0.5;
             if (running == null) return;
+            var st = MigrationState.Load();
+            // A chain starts its next step after the window refreshed for the step that ended. A step that then waits for
+            // the person (Asset Store build) showed Not run, without its buttons, until the window was reopened (window
+            // check of 24.10.2026).
+            if (StepsShown(st) != shownSteps) Refresh();
             bool capturing = CaptureRunner.IsRunning;
-            running.style.display = capturing || MigrationRunner.Busy ? DisplayStyle.Flex : DisplayStyle.None;
-            var chain = MigrationState.Load().ChainKind;
+            running.style.display = capturing || st.Running >= 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            var chain = st.ChainKind;
             running.text = capturing ? Loc.Get("ui.migrate.capturing", CaptureRunner.CurrentLabel, Mathf.RoundToInt(CaptureRunner.Progress * 100), CaptureRunner.Status)
                          : chain == MigrationRunner.ChainShowBreaks ? Loc.Get("ui.breaks.running")
                          : chain == MigrationRunner.ChainFix ? Loc.Get("ui.result.fixing")
@@ -147,11 +153,31 @@ namespace Urpify.UI
             bool busy = st.Running >= 0 || CaptureRunner.IsRunning;
             breaks.Clear();
             if (MigrationRunner.ShowBreaksPlan(st, true).Count > 0) breaks.Add(ShowBreaksCard(busy));
+            VisualElement waiting = null;
             foreach (var rec in st.Steps.OrderBy(s => s.Id))
-                list.Add(Row(st, rec, busy));
+            {
+                var row = Row(st, rec, busy);
+                list.Add(row);
+                if (rec.Status == StepStatus.Running && rec.Phase == MigrationRunner.PhaseWaitingForPerson) waiting = row;
+            }
+            // The step that waits for the person has the buttons to act on; its card can be below the window's edge.
+            if (waiting != null)
+            {
+                void ScrollToWaiting(GeometryChangedEvent e)
+                {
+                    waiting.UnregisterCallback<GeometryChangedEvent>(ScrollToWaiting);
+                    list.schedule.Execute(() => list.ScrollTo(waiting));
+                }
+                waiting.RegisterCallback<GeometryChangedEvent>(ScrollToWaiting);
+            }
+            shownSteps = StepsShown(st);
             runAll.SetEnabled(!busy);
             rollbackAll.SetEnabled(!busy && st.Steps.Any(s => MigrationState.HasRollback(s.Id) && MigrationState.Snapshots(s).Any()));
         }
+
+        /// <summary>What the step list shows: the running step, its phase and every step's status.</summary>
+        static string StepsShown(MigrationState st) =>
+            $"{st.Running}/{(st.Running >= 0 ? st.Get((StepId)st.Running).Phase : 0)}/{string.Join(",", st.Steps.Select(s => (int)s.Status))}";
 
         VisualElement Row(MigrationState st, StepRecord rec, bool busy)
         {
@@ -168,7 +194,8 @@ namespace Urpify.UI
             head.Add(status);
             card.Add(head);
             // The Free package runs this step too: its fixes are free, shaders and scripts need Pro (owner's check 19.10.2026, item 6).
-            var what = new Label(Loc.Get(rec.Id == StepId.KitConverters && MigrationRunner.ShaderConverters().Count == 0 ? "step.KitConverters.whatFree" : "step." + rec.Id + ".what"));
+            var what = new Label(Loc.Get(rec.Id == StepId.KitConverters && MigrationRunner.ShaderConverters().Count == 0 ? "step.KitConverters.whatFree"
+                : rec.Id == StepId.InstallUrp && BuildInfo.AssetStore ? "step.InstallUrp.whatStore" : "step." + rec.Id + ".what"));
             what.AddToClassList("urpify-text");
             card.Add(what);
             // One result line in plain words, in the window's language; what the step logged goes under Details (design
@@ -218,6 +245,24 @@ namespace Urpify.UI
                 card.Add(hint);
             }
             buttons.Add(run);
+            // Asset Store build: Install URP waits for URP from the Package Manager, Unity's converter for its window.
+            if (rec.Status == StepStatus.Running && rec.Phase == MigrationRunner.PhaseWaitingForPerson)
+            {
+                if (id == StepId.InstallUrp)
+                {
+                    var pm = new Button(MigrationRunner.OpenPackageManagerOnUrp) { text = Loc.Get("ui.migrate.openPackageManager") };
+                    pm.AddToClassList("urpify-primary");
+                    buttons.Add(pm);
+                }
+                else if (id == StepId.UnityConverter)
+                {
+                    var go = new Button(() => { MigrationRunner.ContinueAfterConverterWindow(); Refresh(); }) { text = Loc.Get("ui.migrate.converterDone") };
+                    go.AddToClassList("urpify-primary");
+                    buttons.Add(go);
+                    buttons.Add(new Button(MigrationRunner.OpenConverterWindow) { text = Loc.Get("ui.migrate.openConverter") });
+                }
+                buttons.Add(new Button(() => { MigrationRunner.StopWaitingForPerson(); Refresh(); }) { text = Loc.Get("ui.migrate.stopWaiting") });
+            }
             if (id == StepId.KitConverters && MigrationRunner.ShaderConverters().Count > 0)
             {
                 var output = UiKit.OutputChooser(null);
@@ -246,6 +291,9 @@ namespace Urpify.UI
         /// <summary>Before a step that changes files: a git working tree with uncommitted changes gets a warning first.</summary>
         void Confirmed(StepId id, Action action)
         {
+            // Unity's converter and Urpify's save the scenes they change: changes the user has not saved would be saved with
+            // them and then undone by a rollback. They are saved now, on the user's answer, or the step does not start (R-07).
+            if ((MigrationState.IsModifying(id) || id == StepId.InstallUrp) && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             if (MigrationState.IsModifying(id) || id == StepId.InstallUrp)
             {
                 var (repo, changes, _) = GitCheck.Status();
@@ -348,7 +396,12 @@ namespace Urpify.UI
                 try { text = File.ReadAllText(SummaryFile); File.Delete(SummaryFile); }
                 catch { return; }
                 Debug.Log("[Urpify] " + text);
-                EditorUtility.DisplayDialog(Loc.Get("ui.migrate.rollbackDoneTitle"), text, Loc.Get("ui.ok"));
+                if (BuildInfo.AssetStore && UrpInstaller.InManifest())
+                {
+                    if (EditorUtility.DisplayDialog(Loc.Get("ui.migrate.rollbackDoneTitle"), text, Loc.Get("ui.migrate.openPackageManager"), Loc.Get("ui.ok")))
+                        MigrationRunner.OpenPackageManagerOnUrp();
+                }
+                else EditorUtility.DisplayDialog(Loc.Get("ui.migrate.rollbackDoneTitle"), text, Loc.Get("ui.ok"));
             };
         }
 
@@ -369,6 +422,8 @@ namespace Urpify.UI
             var summary = Loc.Get("ui.migrate.rollbackDone", r.Restored.Count, r.Removed.Count, r.Skipped.Count, r.Errors.Count);
             if (r.Between.Count > 0) summary += " " + Loc.Get("ui.migrate.rollbackBetween", r.Between.Count);
             if (r.Skipped.Count + r.Between.Count + r.Errors.Count > 0) summary += " " + Loc.Get("ui.migrate.rollbackListed");
+            // The Asset Store build leaves the package list alone (Submission Guidelines 2.5.1.e).
+            if (BuildInfo.AssetStore && UrpInstaller.InManifest()) summary += "\n\n" + Loc.Get("ui.migrate.rollbackUrpStays");
             return summary;
         }
     }

@@ -43,9 +43,11 @@ namespace Urpify.Pipeline
             return m.Success ? m.Groups[1].Value : null;
         }
 
+#if !URPIFY_ASSET_STORE
         /// <summary>
         /// Recipe from STATUS.md M1 for a package list that claims packages the Library does not have: delete the cached
-        /// package state so the Package Manager resolves again.
+        /// package state so the Package Manager resolves again. Not in the Asset Store build, which leaves packages to the
+        /// Package Manager.
         /// </summary>
         public static void RepairPackageCache(string projectRoot = ".")
         {
@@ -56,6 +58,7 @@ namespace Urpify.Pipeline
             }
             UnityEditor.PackageManager.Client.Resolve();
         }
+#endif
     }
 
     public static class GitCheck
@@ -73,15 +76,22 @@ namespace Urpify.Pipeline
             if (!repo) return (false, 0, "");
             try
             {
-                var psi = new ProcessStartInfo("git", "status --porcelain")
+                // Only the Unity project's own folder (a project in a subfolder of the repository was warned about the
+                // rest of it), paths relative to it, and a time limit (code review R-15.9).
+                var psi = new ProcessStartInfo("git", "-c core.quotepath=off status --porcelain -- .")
                 {
                     WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true,
                 };
                 using (var p = Process.Start(psi))
                 {
-                    var output = p.StandardOutput.ReadToEnd();
-                    p.WaitForExit(20000);
-                    var lines = output.Split('\n').Select(l => l.TrimEnd('\r')).Where(l => l.Length > 3)
+                    var output = p.StandardOutput.ReadToEndAsync();
+                    var errors = p.StandardError.ReadToEndAsync();
+                    if (!p.WaitForExit(20000))
+                    {
+                        try { p.Kill(); } catch { }
+                        return (true, -1, "git did not answer in 20 seconds.");
+                    }
+                    var lines = output.Result.Split('\n').Select(l => l.TrimEnd('\r')).Where(l => l.Length > 3)
                         .Where(l => !l.Substring(3).Trim('"').StartsWith("Urpify/", StringComparison.Ordinal)).ToList();
                     return (true, lines.Count, string.Join("\n", lines.Take(20)));
                 }
